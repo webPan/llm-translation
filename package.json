@@ -1,0 +1,348 @@
+{
+  "name": "llm-translation",
+  "displayName": "LLM Translation",
+  "description": "AI-powered translation using multiple LLM providers",
+  "version": "0.1.0",
+  "publisher": "your-publisher",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/llm-translation"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/llm-translation/issues"
+  },
+  "homepage": "https://github.com/your-username/llm-translation#readme",
+  "license": "MIT",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "translation",
+    "llm",
+    "ai",
+    "deepseek",
+    "qwen",
+    "kimi",
+    "glm"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "llm-translation.translate",
+        "title": "Transform",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.translateSimple",
+        "title": "Translate (Simple Mode)",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.translateFull",
+        "title": "Translate (Full Mode)",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.translateToEnglish",
+        "title": "Translate to English",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.translateToChinese",
+        "title": "Translate to Chinese",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.translateToJapanese",
+        "title": "Translate to Japanese",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.translateAndReplace",
+        "title": "Translate and Replace",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.openSettings",
+        "title": "Open Settings",
+        "category": "LLM Translation",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "llm-translation.setApiKey",
+        "title": "Set API Key",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.switchProvider",
+        "title": "Switch Provider",
+        "category": "LLM Translation"
+      },
+      {
+        "command": "llm-translation.toggleDisplayMode",
+        "title": "Toggle Display Mode",
+        "category": "LLM Translation"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "llm-translation.translate",
+          "group": "9_cutcopypaste@5",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "llm-translation.translate",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "llm-translation.translateAndReplace",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "editorHasSelection"
+      }
+    ],
+    "configuration": {
+      "title": "LLM Translation",
+      "properties": {
+        "llmTranslation.defaultProvider": {
+          "type": "string",
+          "default": "deepseek",
+          "enum": [
+            "deepseek",
+            "qwen",
+            "kimi",
+            "glm"
+          ],
+          "description": "Default translation provider"
+        },
+        "llmTranslation.defaultTargetLang": {
+          "type": "string",
+          "default": "zh",
+          "enum": [
+            "zh",
+            "en",
+            "ja"
+          ],
+          "description": "Default target language"
+        },
+        "llmTranslation.displayMode": {
+          "type": "string",
+          "default": "simple",
+          "enum": [
+            "simple",
+            "normal"
+          ],
+          "description": "Default display mode"
+        },
+        "llmTranslation.providers.deepseek.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "DeepSeek API Key"
+        },
+        "llmTranslation.providers.deepseek.model": {
+          "type": "string",
+          "default": "deepseek-chat",
+          "description": "DeepSeek model name"
+        },
+        "llmTranslation.providers.deepseek.baseUrl": {
+          "type": "string",
+          "default": "https://api.deepseek.com",
+          "description": "DeepSeek API base URL"
+        },
+        "llmTranslation.providers.qwen.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Qwen (DashScope) API Key"
+        },
+        "llmTranslation.providers.qwen.model": {
+          "type": "string",
+          "default": "qwen-turbo",
+          "description": "Qwen model name"
+        },
+        "llmTranslation.providers.qwen.baseUrl": {
+          "type": "string",
+          "default": "https://dashscope.aliyuncs.com/api/v1",
+          "description": "Qwen API base URL"
+        },
+        "llmTranslation.providers.kimi.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Kimi (Moonshot) API Key"
+        },
+        "llmTranslation.providers.kimi.model": {
+          "type": "string",
+          "default": "moonshot-v1-8k",
+          "description": "Kimi model name"
+        },
+        "llmTranslation.providers.kimi.baseUrl": {
+          "type": "string",
+          "default": "https://api.moonshot.cn/v1",
+          "description": "Kimi API base URL"
+        },
+        "llmTranslation.providers.glm.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "GLM (Zhipu) API Key"
+        },
+        "llmTranslation.providers.glm.model": {
+          "type": "string",
+          "default": "glm-4",
+          "description": "GLM model name"
+        },
+        "llmTranslation.providers.glm.baseUrl": {
+          "type": "string",
+          "default": "https://open.bigmodel.cn/api/paas/v4",
+          "description": "GLM API base URL"
+        },
+        "llmTranslation.simpleMode.autoHide": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto hide simple mode panel when clicking outside"
+        },
+        "llmTranslation.simpleMode.autoHideDelay": {
+          "type": "number",
+          "default": 300,
+          "description": "Auto hide delay in milliseconds"
+        },
+        "llmTranslation.simpleMode.showPronunciation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show pronunciation in simple mode"
+        },
+        "llmTranslation.simpleMode.showLanguageDirection": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show language direction in simple mode"
+        },
+        "llmTranslation.simpleMode.showProvider": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show provider info in simple mode"
+        },
+        "llmTranslation.simpleMode.panelMode": {
+          "type": "string",
+          "default": "inline",
+          "enum": [
+            "inline",
+            "hover",
+            "window"
+          ],
+          "enumDescriptions": [
+            "Inline minimal mode",
+            "Hover panel mode",
+            "Open in new window"
+          ],
+          "description": "Simple mode panel display style"
+        },
+        "llmTranslation.simpleMode.showDuration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show request duration in simple mode"
+        },
+        "llmTranslation.simpleMode.showExpandButton": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show expand to full mode button"
+        },
+        "llmTranslation.simpleMode.showAlternatives": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show alternative translations"
+        },
+        "llmTranslation.simpleMode.maxAlternatives": {
+          "type": "number",
+          "default": 2,
+          "description": "Maximum number of alternative translations"
+        },
+        "llmTranslation.defaultPromptTemplate": {
+          "type": "string",
+          "default": "default",
+          "enum": [
+            "default",
+            "academic",
+            "casual",
+            "code"
+          ],
+          "description": "Default prompt template"
+        },
+        "llmTranslation.customPromptTemplates": {
+          "type": "array",
+          "default": [],
+          "description": "Custom prompt templates",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "template"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Template ID (optional)"
+              },
+              "name": {
+                "type": "string",
+                "description": "Template name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Template description"
+              },
+              "template": {
+                "type": "string",
+                "description": "Template content"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:webview && npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build:webview": "node build-webview.js",
+    "watch:webview": "node build-webview.js --watch",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "@lit/react": "^1.0.8",
+    "@vscode-elements/elements": "^2.4.0",
+    "axios": "^1.6.2",
+    "esbuild": "^0.27.2",
+    "lit": "^3.3.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
