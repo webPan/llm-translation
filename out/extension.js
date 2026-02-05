@@ -38,17 +38,17 @@ exports.activate = activate;
 exports.deactivate = deactivate;
 const vscode = __importStar(require("vscode"));
 const providers_1 = require("./providers");
-const panels_1 = require("./webview/panels");
+const controllers_1 = require("./webview/controllers");
 const translate_1 = require("./commands/translate");
 const config_1 = require("./commands/config");
 const promptManager_1 = require("./services/promptManager");
 const parser_1 = require("./services/parser");
 const statusBar_1 = require("./utils/statusBar");
 // 导出面板管理器以供其他模块使用
-var panels_2 = require("./webview/panels");
-Object.defineProperty(exports, "getSimplePanelManager", { enumerable: true, get: function () { return panels_2.getSimplePanelManager; } });
-Object.defineProperty(exports, "getFullPanelManager", { enumerable: true, get: function () { return panels_2.getFullPanelManager; } });
-Object.defineProperty(exports, "getSettingsPanelManager", { enumerable: true, get: function () { return panels_2.getSettingsPanelManager; } });
+var controllers_2 = require("./webview/controllers");
+Object.defineProperty(exports, "getSimplePanelManager", { enumerable: true, get: function () { return controllers_2.getSimplePanelManager; } });
+Object.defineProperty(exports, "getFullPanelManager", { enumerable: true, get: function () { return controllers_2.getFullPanelManager; } });
+Object.defineProperty(exports, "getSettingsPanelManager", { enumerable: true, get: function () { return controllers_2.getSettingsPanelManager; } });
 function activate(context) {
     console.log('LLM Translation extension is now active!');
     // Initialize providers
@@ -57,9 +57,9 @@ function activate(context) {
     const statusBar = (0, statusBar_1.initStatusBar)(providerManager);
     context.subscriptions.push(statusBar);
     // Initialize panel managers
-    const simplePanelManager = (0, panels_1.getSimplePanelManager)();
-    const fullPanelManager = (0, panels_1.getFullPanelManager)();
-    const settingsPanelManager = (0, panels_1.getSettingsPanelManager)(providerManager);
+    const simplePanelManager = (0, controllers_1.getSimplePanelManager)();
+    const fullPanelManager = (0, controllers_1.getFullPanelManager)();
+    const settingsPanelManager = (0, controllers_1.getSettingsPanelManager)(providerManager);
     // Register commands
     const translateDisposables = (0, translate_1.registerTranslateCommands)(context, providerManager, simplePanelManager, fullPanelManager);
     const configDisposables = (0, config_1.registerConfigCommands)(context, providerManager, settingsPanelManager);
@@ -67,9 +67,9 @@ function activate(context) {
     context.subscriptions.push(...translateDisposables, ...configDisposables, {
         dispose: () => {
             (0, providers_1.resetProviderManager)();
-            (0, panels_1.resetSimplePanelManager)();
-            (0, panels_1.resetFullPanelManager)();
-            (0, panels_1.resetSettingsPanelManager)();
+            (0, controllers_1.resetSimplePanelManager)();
+            (0, controllers_1.resetFullPanelManager)();
+            (0, controllers_1.resetSettingsPanelManager)();
             (0, promptManager_1.resetPromptManager)();
             (0, parser_1.resetResultParser)();
             (0, statusBar_1.resetStatusBar)();
@@ -93,9 +93,9 @@ function activate(context) {
 function deactivate() {
     console.log('LLM Translation extension is now deactivated!');
     (0, providers_1.resetProviderManager)();
-    (0, panels_1.resetSimplePanelManager)();
-    (0, panels_1.resetFullPanelManager)();
-    (0, panels_1.resetSettingsPanelManager)();
+    (0, controllers_1.resetSimplePanelManager)();
+    (0, controllers_1.resetFullPanelManager)();
+    (0, controllers_1.resetSettingsPanelManager)();
     (0, statusBar_1.resetStatusBar)();
 }
 async function showWelcomeMessage(context) {

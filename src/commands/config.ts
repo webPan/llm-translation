@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ProviderManager } from '../providers';
-import { SettingsPanelManager } from '../webview/panels/SettingsPanelController';
+import { SettingsPanelManager } from '../webview/controllers/SettingsPanelController';
 
 export function registerConfigCommands(
   context: vscode.ExtensionContext,

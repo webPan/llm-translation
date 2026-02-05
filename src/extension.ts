@@ -7,7 +7,7 @@ import {
   resetFullPanelManager,
   getSettingsPanelManager,
   resetSettingsPanelManager,
-} from './webview/panels';
+} from './webview/controllers';
 import { registerTranslateCommands } from './commands/translate';
 import { registerConfigCommands } from './commands/config';
 import { resetPromptManager } from './services/promptManager';
@@ -15,7 +15,7 @@ import { resetResultParser } from './services/parser';
 import { initStatusBar, resetStatusBar } from './utils/statusBar';
 
 // 导出面板管理器以供其他模块使用
-export { getSimplePanelManager, getFullPanelManager, getSettingsPanelManager } from './webview/panels';
+export { getSimplePanelManager, getFullPanelManager, getSettingsPanelManager } from './webview/controllers';
 
 export function activate(context: vscode.ExtensionContext): void {
   console.log('LLM Translation extension is now active!');

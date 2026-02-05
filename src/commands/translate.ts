@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ProviderManager } from '../providers';
-import { SimplePanelManager, FullPanelManager } from '../webview/panels';
+import { SimplePanelManager, FullPanelManager } from '../webview/controllers';
 import type { TranslationResult, Language } from '../types';
 
 export function registerTranslateCommands(

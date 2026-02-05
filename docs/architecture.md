@@ -6,211 +6,251 @@
 
 ## 2. 技术栈
 
-- **框架**: VS Code Extension API
-- **语言**: TypeScript
-- **UI 框架**: 
-  - Webview 容器: VS Code Webview API
-  - 组件库: Lit (Web Components)
-  - UI 组件: @vscode-elements/elements（VS Code 官方 Web Components UI 库）
-- **HTTP 客户端**: Axios / Fetch API
-- **构建工具**: esbuild
-- **状态管理**: Lit Context API
+| 层级 | 技术 |
+|------|------|
+| Extension | VS Code Extension API + TypeScript |
+| Webview UI | Lit (Web Components) + @vscode-elements/elements |
+| 样式 | VS Code CSS Variables |
+| 构建 | esbuild / tsc |
 
-## 3. 系统架构
+## 3. 系统架构（三层设计）
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           VS Code Extension                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────┐  │
-│  │  Extension Host │  │    Commands     │  │    Configuration        │  │
-│  │  (main thread)  │  │   (翻译命令)    │  │   (设置管理)            │  │
-│  └────────┬────────┘  └────────┬────────┘  └────────────┬────────────┘  │
-│           │                    │                        │               │
-│           ▼                    ▼                        ▼               │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                      Core Services                               │   │
-│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────────────────┐ │   │
-│  │  │ LLM Provider │ │   Parser     │ │    Prompt Manager        │ │   │
-│  │  │   Manager    │ │   Engine     │ │   (模板引擎)             │ │   │
-│  │  └──────────────┘ └──────────────┘ └──────────────────────────┘ │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│           │                                                             │
-│           ▼                                                             │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                      LLM Providers                               │   │
-│  │  ┌────────┐ ┌──────────┐ ┌────────┐ ┌────────┐ ┌──────────────┐ │   │
-│  │  │ Qwen   │ │ DeepSeek │ │  Kimi  │ │  GLM   │ │  Custom...   │ │   │
-│  │  │(千问)  │ │          │ │        │ │        │ │              │ │   │
-│  │  └────────┘ └──────────┘ └────────┘ └────────┘ └──────────────┘ │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│           │                                                             │
-│           ▼                                                             │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                      Webview UI Layer                            │   │
-│  │  ┌─────────────────────────────────────────────────────────────┐│   │
-│  │  │  Panel Controllers (VS Code 端)                             ││   │
-│  │  │  Settings | Simple | Full Panel Controllers                ││   │
-│  │  └──────────────────────┬──────────────────────────────────────┘│   │
-│  │                         │ Message Bridge                        │   │
-│  │  ┌──────────────────────▼──────────────────────────────────────┐│   │
-│  │  │  Webview Components (Browser 端)                            ││   │
-│  │  │  ┌────────────┐ ┌────────────┐ ┌────────────────────────┐  ││   │
-│  │  │  │ Lit/React  │ │ Lit/React  │ │  Lit/React             │  ││   │
-│  │  │  │ Settings   │ │ Translation│ │  Provider Config       │  ││   │
-│  │  │  │ Panel      │ │ Result     │ │  Components            │  ││   │
-│  │  │  └────────────┘ └────────────┘ └────────────────────────┘  ││   │
-│  │  └─────────────────────────────────────────────────────────────┘│   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      VS Code Extension                        │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │              Extension Host (Main)                      │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐ │  │
+│  │  │ Commands │  │Providers │  │ Config Services      │ │  │
+│  │  └────┬─────┘  └────┬─────┘  └──────────┬───────────┘ │  │
+│  │       └─────────────┴─────────────────────┘             │  │
+│  │                     │                                   │  │
+│  │                     ▼                                   │  │
+│  │  ┌─────────────────────────────────────────────────┐   │  │
+│  │  │            Controllers                           │   │  │
+│  │  │  SettingsPanelController                        │   │  │
+│  │  │  SimplePanelController                          │   │  │
+│  │  │  FullPanelController                            │   │  │
+│  │  │         (仅管理 Webview 生命周期)                 │   │  │
+│  │  └──────────────────┬──────────────────────────────┘   │  │
+│  └─────────────────────┼──────────────────────────────────┘  │
+│                        │ postMessage                         │
+│  ┌─────────────────────┼──────────────────────────────────┐  │
+│  │                     ▼          Webview (Browser)        │  │
+│  │  ┌─────────────────────────────────────────────────┐   │  │
+│  │  │              View Entry Points                    │   │  │
+│  │  │    settings.ts | simple.ts | full.ts             │   │  │
+│  │  └────────────────────┬────────────────────────────┘   │  │
+│  │                       │                                 │  │
+│  │                       ▼                                 │  │
+│  │  ┌─────────────────────────────────────────────────┐   │  │
+│  │  │           UI Components (Lit)                     │   │  │
+│  │  │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │   │  │
+│  │  │  │ settings │ │ provider │ │ result-card      │ │   │  │
+│  │  │  │ -form    │ │ -card    │ │                  │ │   │  │
+│  │  │  └──────────┘ └──────────┘ └──────────────────┘ │   │  │
+│  │  └─────────────────────────────────────────────────┘   │  │
+│  └────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## 4. 目录结构
 
 ```
-llm-translation/
-├── src/
-│   ├── extension.ts              # 插件入口
-│   ├── commands/                 # 命令注册
-│   │   ├── translate.ts          # 翻译命令
-│   │   └── config.ts             # 配置命令
-│   ├── providers/                # LLM 提供商
-│   │   ├── base.ts               # 基类接口
-│   │   ├── qwen.ts               # 千问
-│   │   ├── deepseek.ts           # DeepSeek
-│   │   ├── kimi.ts               # Kimi
-│   │   ├── glm.ts                # 智谱 GLM
-│   │   └── index.ts              # 提供商管理
-│   ├── services/                 # 核心服务
-│   │   ├── promptManager.ts      # 提示词管理
-│   │   ├── parser.ts             # 结果解析器
-│   │   └── translator.ts         # 翻译服务
-│   ├── webview/                  # Webview 架构（双层设计）
-│   │   ├── common/               # 公共代码
-│   │   │   ├── bridge.ts         # VS Code 消息桥接
-│   │   │   ├── types.ts          # Webview 共享类型
-│   │   │   └── utils.ts          # 工具函数
-│   │   ├── components/           # UI 组件（Webview 端）
-│   │   │   ├── lit/              # Lit Web Components
-│   │   │   │   ├── base-component.ts
-│   │   │   │   ├── settings-panel.ts
-│   │   │   │   ├── translation-result.ts
-│   │   │   │   ├── provider-config.ts
-│   │   │   │   ├── prompt-editor.ts
-│   │   │   │   └── language-selector.ts
-│   │   │   └── react/            # React 组件（可选）
-│   │   │       ├── SettingsPanel.tsx
-│   │   │       └── index.tsx
-│   │   ├── panels/               # 面板控制器（VS Code 端）
-│   │   │   ├── BasePanelController.ts
-│   │   │   ├── SettingsPanelController.ts
-│   │   │   ├── SimplePanelController.ts
-│   │   │   └── FullPanelController.ts
-│   │   └── views/                # 视图入口（Webview 端）
-│   │       ├── settings.ts       # 设置页面入口
-│   │       ├── simple.ts         # 简单面板入口
-│   │       └── full.ts           # 完整面板入口
-│   ├── types/                    # 类型定义
-│   │   └── index.ts
-│   └── utils/                    # 工具函数
-│       ├── http.ts
-│       └── statusBar.ts
-├── package.json                  # 插件清单
-├── tsconfig.json                 # TypeScript 配置
-├── build-webview.js              # Webview 构建脚本
-└── README.md
+src/
+├── extension.ts                 # 插件入口
+├── commands/                    # 命令注册
+│   ├── config.ts                # 配置命令（打开设置面板）
+│   └── translate.ts             # 翻译命令
+├── providers/                   # LLM 提供商
+│   ├── base.ts                  # Provider 基类接口
+│   ├── index.ts                 # ProviderManager 管理器
+│   ├── qwen.ts                  # 千问 (Qwen)
+│   ├── deepseek.ts              # DeepSeek
+│   ├── kimi.ts                  # Kimi
+│   └── glm.ts                   # 智谱 GLM
+├── services/                    # 核心服务
+│   ├── promptManager.ts         # 提示词模板管理
+│   ├── parser.ts                # 翻译结果解析器
+│   └── translator.ts            # 翻译服务主逻辑
+├── types/                       # 类型定义
+│   └── index.ts
+├── utils/                       # 工具函数
+│   ├── http.ts
+│   └── statusBar.ts             # 状态栏管理
+└── webview/                     # Webview 三层架构
+    ├── controllers/             # Panel Controllers (VS Code 端)
+    │   ├── index.ts             # 统一导出
+    │   ├── BasePanelController.ts
+    │   ├── SettingsPanelController.ts
+    │   ├── SimplePanelController.ts
+    │   └── FullPanelController.ts
+    ├── components/              # UI 组件 (Lit Web Components)
+    │   ├── common/              # 通用组件
+    │   ├── settings/            # 设置相关组件
+    │   └── translation/         # 翻译结果组件
+    ├── views/                   # View Entry Points (Webview 端)
+    │   ├── settings.ts
+    │   ├── simple.ts
+    │   └── full.ts
+    └── utils/                   # Webview 端工具模块
+        └── bridge.ts            # 消息桥接模块
 ```
 
-## 5. 数据流
+## 5. 分层职责
 
-```
-用户选中文本
-    │
-    ▼
-触发翻译命令 ──► 获取配置 ──► 构建 Prompt ──► 调用 LLM API
-                                               │
-                                               ▼
-显示结果 ◄── 解析响应 ◄── 接收响应 ◄───────────┘
-    │
-    ▼
-渲染 Webview / 显示消息
-```
+### 5.1 Controllers (`controllers/`)
 
-## 6. 核心接口设计
+**运行环境**: Node.js (Extension Host)
 
-### 6.1 LLM Provider 接口
+**职责**:
+- 创建/管理 `WebviewPanel` 生命周期
+- 返回 HTML 骨架（引用 `views/*.js`）
+- 注册消息处理器
+- 调用 VS Code API
+
+**约束**:
+- ❌ 不包含业务 UI 代码
+- ❌ 不内联 HTML/CSS
 
 ```typescript
-interface LLMProvider {
-  readonly name: string;
-  readonly id: string;
-  translate(text: string, options: TranslateOptions): Promise<TranslationResult>;
-  validateConfig(config: ProviderConfig): boolean;
-}
-
-interface TranslateOptions {
-  sourceLang: Language;
-  targetLang: Language;
-  promptTemplate?: string;
-  model?: string;
-}
-
-interface TranslationResult {
-  original: string;
-  translation: string;
-  pronunciation?: string;
-  alternatives?: string[];
-  explanations?: Explanation[];
-  examples?: Example[];
-  raw?: any;
+// 示例：Controller 的 HTML 方法
+protected getHtmlContent(): string {
+  const scriptUri = this.getResourceUri('views/settings.js');
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="...">
+</head>
+<body>
+  <div id="app"></div>
+  <script src="${scriptUri}"></script>
+</body>
+</html>`;
 }
 ```
 
-### 6.2 Prompt 模板接口
+### 5.2 UI Components (`components/`)
+
+**运行环境**: 浏览器 (Webview)
+
+**职责**:
+- 使用 Lit 定义 Web Components
+- 封装业务逻辑和样式
+- 通过 `properties` 接收数据
+- 通过 `events` 与父组件通信
+
+**规范**:
+- 继承 `LitElement`
+- 使用 `@vscode-elements/elements` 作为基础组件
+- 样式使用 VS Code CSS Variables
 
 ```typescript
-interface PromptTemplate {
-  id: string;
-  name: string;
-  template: string;
-  variables: string[];
-  outputFormat: OutputFormat;
-}
-
-interface OutputFormat {
-  type: 'json' | 'markdown' | 'plain';
-  schema?: Record<string, string>;
+// 示例：Lit 组件基本结构
+@customElement('provider-card')
+export class ProviderCard extends LitElement {
+  @property({ type: Object }) provider!: ProviderConfig;
+  
+  render() {
+    return html`
+      <vscode-textfield 
+        .value="${this.provider.apiKey}"
+        @change="${this._handleChange}">
+      </vscode-textfield>
+    `;
+  }
 }
 ```
 
-### 6.3 显示模式接口
+### 5.3 View Entry Points (`views/`)
+
+**运行环境**: 浏览器 (Webview)
+
+**职责**:
+- 导入并注册 Web Components
+- 初始化页面布局
+- 通过 `bridge.ts` 与 Controller 通信
+
+**约束**:
+- ❌ 不直接调用 VS Code API
 
 ```typescript
-type DisplayMode = 'simple' | 'normal';
+// 示例：View Entry
+import '../components/settings/provider-card';
+import { request, post } from '../utils/bridge';
 
-interface DisplayModeConfig {
-  mode: DisplayMode;
-  simple: {
-    autoHide: boolean;
-    autoHideDelay: number;
-    showAlternatives: boolean;
-    maxAlternatives: number;
-    position: 'above' | 'below' | 'auto';
-    // 显示控制
-    showPronunciation: boolean;
-    showLanguageDirection: boolean;
-    showProvider: boolean;
-    showDuration: boolean;
-    showExpandButton: boolean;
-  };
+async function init() {
+  const config = await request('config.get');
+  // 渲染组件...
 }
+```
 
-interface SimpleModeResult {
-  primary: string;
-  alternatives?: string[];
-  pronunciation?: string;
-  sourceLang: string;
-  targetLang: string;
-  provider: string;
-  duration: number;
+## 6. 通信协议
+
+### 6.1 消息格式
+
+```typescript
+interface BridgeMessage<TPayload = any, TResponse = any> {
+  type: string;
+  id?: string;
+  timestamp?: number;
+  payload?: TPayload;
+  response?: TResponse;
+}
+```
+
+### 6.2 常用消息类型
+
+| 类型 | 方向 | 说明 |
+|------|------|------|
+| `config.get` | View → Controller | 获取配置 |
+| `config.update` | View → Controller | 更新配置 |
+| `notification.show` | View → Controller | 显示通知 |
+| `translate.result` | Controller → View | 翻译结果 |
+| `action.copy` | View → Controller | 复制操作 |
+
+### 6.3 Bridge API
+
+```typescript
+// 发送消息（无需响应）
+post('notification.show', { message: '保存成功', type: 'info' });
+
+// 发送请求并等待响应
+const config = await request<Config>('config.get');
+
+// 监听消息
+onMessage('translate.result', (result) => {
+  // 更新 UI
+});
+```
+
+## 7. 开发规范
+
+### 7.1 命名规范
+
+| 层级 | 文件命名 | 类/标签命名 |
+|------|----------|-------------|
+| Controller | `XxxPanelController.ts` | `XxxPanelController` |
+| Component | `xxx-xxx.ts` | `XxxXxx` / `<xxx-xxx>` |
+| View | `xxx.ts` | - |
+
+### 7.2 创建新组件流程
+
+1. 在 `components/{category}/` 创建组件文件
+2. 继承 `LitElement`，使用 `@vscode-elements` 组件
+3. 在 View 中 `import` 注册组件
+4. Controller 保持不变
+
+### 7.3 CSS 变量
+
+使用 VS Code 提供的 CSS Variables 保持一致性：
+
+```css
+:host {
+  --background: var(--vscode-editor-background);
+  --foreground: var(--vscode-editor-foreground);
+  --primary: var(--vscode-button-primaryBackground);
+  --border: var(--vscode-panel-border);
 }
 ```
