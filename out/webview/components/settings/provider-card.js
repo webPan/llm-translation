@@ -26,38 +26,39 @@ let ProviderCard = class ProviderCard extends base_element_1.BaseElement {
     render() {
         if (!this.editedProvider)
             return (0, lit_1.html) ``;
-        const statusClass = this.editedProvider.configured ? 'configured' : 'unconfigured';
         return (0, lit_1.html) `
       <div class="card">
-        <div class="header">
-          <span class="status-dot ${statusClass}"></span>
-          ${this.editedProvider.name}
+        <div class="card-header">
+          <span class="card-title">${this.editedProvider.name}</span>
+          <span class="status ${this.editedProvider.configured ? 'configured' : 'unconfigured'}">
+            ${this.editedProvider.configured ? '已配置' : '未配置'}
+          </span>
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label>API Key</label>
           <vscode-textfield
             type="password"
             .value="${this.editedProvider.apiKey}"
-            placeholder="输入 API Key"
+            placeholder="sk-..."
             @input="${this._handleApiKeyChange}"
           ></vscode-textfield>
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label>Base URL</label>
           <vscode-textfield
             .value="${this.editedProvider.baseUrl}"
-            placeholder="https://api.example.com"
+            placeholder="https://..."
             @input="${this._handleBaseUrlChange}"
           ></vscode-textfield>
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label>模型</label>
           <vscode-textfield
             .value="${this.editedProvider.model}"
-            placeholder="例如：gpt-3.5-turbo"
+            placeholder="gpt-3.5-turbo"
             @input="${this._handleModelChange}"
           ></vscode-textfield>
         </div>
@@ -67,7 +68,7 @@ let ProviderCard = class ProviderCard extends base_element_1.BaseElement {
             .disabled="${this.isSaving}"
             @click="${this._handleSave}"
           >
-            ${this.isSaving ? '保存中...' : '保存'}
+            保存
           </vscode-button>
         </div>
       </div>
@@ -107,53 +108,74 @@ exports.ProviderCard = ProviderCard;
 ProviderCard.styles = [
     base_element_1.BaseElement.styles,
     (0, lit_1.css) `
-      .card {
-        padding: 16px;
-        background: var(--vscode-editor-inactiveSelectionBackground);
-        border-radius: 6px;
-        margin-bottom: 12px;
+      :host {
+        display: block;
       }
 
-      .header {
+      .card {
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 3px;
+        padding: 12px;
+      }
+
+      .card-header {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-        font-weight: 600;
-        font-size: 14px;
-      }
-
-      .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-      }
-
-      .status-dot.configured {
-        background: var(--success);
-      }
-
-      .status-dot.unconfigured {
-        background: var(--error);
-      }
-
-      .form-group {
+        justify-content: space-between;
         margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
       }
 
-      label {
-        display: block;
-        margin-bottom: 4px;
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--vscode-foreground);
+      }
+
+      .status {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 2px;
+      }
+
+      .status.configured {
+        color: var(--vscode-testing-iconPassed);
+        background: var(--vscode-testing-iconPassed);
+        opacity: 0.15;
+      }
+
+      .status.unconfigured {
+        color: var(--vscode-descriptionForeground);
+        background: var(--vscode-descriptionForeground);
+        opacity: 0.15;
+      }
+
+      .field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+
+      .field:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .field label {
         font-size: 12px;
-        color: var(--description);
+        color: var(--vscode-descriptionForeground);
+        min-width: 70px;
       }
 
       vscode-textfield {
-        width: 100%;
+        flex: 1;
       }
 
       .actions {
-        margin-top: 16px;
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid var(--vscode-panel-border);
         display: flex;
         justify-content: flex-end;
       }

@@ -8,7 +8,8 @@
       "Bash(npm run compile:*)",
       "Bash(npm uninstall:*)",
       "Bash(move:*)",
-      "Bash(npm run build:webview:*)"
+      "Bash(npm run build:webview:*)",
+      "Bash(npm ls:*)"
     ]
   }
 }

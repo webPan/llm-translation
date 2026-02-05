@@ -28,7 +28,6 @@ let SettingsPage = class SettingsPage extends base_element_1.BaseElement {
     }
     async _loadConfig() {
         try {
-            // 通过自定义事件让 View Entry 处理请求
             this.dispatchEvent(new CustomEvent('load-config', {
                 bubbles: true,
                 composed: true
@@ -45,60 +44,52 @@ let SettingsPage = class SettingsPage extends base_element_1.BaseElement {
     }
     render() {
         if (this.isLoading) {
-            return (0, lit_1.html) `
-        <div class="loading">
-          <p>加载中...</p>
-        </div>
-      `;
+            return (0, lit_1.html) `<div class="loading">加载中...</div>`;
         }
         if (this.error) {
-            return (0, lit_1.html) `
-        <div class="error">
-          <p>${this.error}</p>
-        </div>
-      `;
+            return (0, lit_1.html) `<div class="error">${this.error}</div>`;
         }
         if (!this.config) {
-            return (0, lit_1.html) `
-        <div class="empty">
-          <p>暂无配置</p>
-        </div>
-      `;
+            return (0, lit_1.html) `<div class="empty">暂无配置</div>`;
         }
         const providers = Object.values(this.config.providers);
         return (0, lit_1.html) `
       <div class="header">
-        <h1>LLM Translation 设置</h1>
-        <p>配置您的翻译插件</p>
+        <h1>设置</h1>
+        <p>配置翻译插件的首选项和服务商</p>
       </div>
 
       <vscode-tabs>
         <vscode-tab-header slot="header">常规</vscode-tab-header>
         <vscode-tab-panel>
-          <settings-form
-            .config="${this.config.general}"
-            @save="${this._handleGeneralSave}"
-          ></settings-form>
+          <div class="tab-content">
+            <settings-form
+              .config="${this.config.general}"
+              @save="${this._handleGeneralSave}"
+            ></settings-form>
+          </div>
         </vscode-tab-panel>
 
         <vscode-tab-header slot="header">服务商</vscode-tab-header>
         <vscode-tab-panel>
-          <div class="provider-list">
-            ${providers.length === 0
+          <div class="tab-content">
+            <div class="provider-list">
+              ${providers.length === 0
             ? (0, lit_1.html) `<div class="empty">暂无配置的服务商</div>`
             : providers.map(provider => (0, lit_1.html) `
-                  <provider-card
-                    .provider="${provider}"
-                    @save="${this._handleProviderSave}"
-                  ></provider-card>
-                `)}
+                    <provider-card
+                      .provider="${provider}"
+                      @save="${this._handleProviderSave}"
+                    ></provider-card>
+                  `)}
+            </div>
           </div>
         </vscode-tab-panel>
 
         <vscode-tab-header slot="header">模板</vscode-tab-header>
         <vscode-tab-panel>
-          <div class="empty">
-            <p>模板编辑功能开发中...</p>
+          <div class="tab-content">
+            <div class="empty">模板编辑功能开发中...</div>
           </div>
         </vscode-tab-panel>
       </vscode-tabs>
@@ -125,44 +116,60 @@ SettingsPage.styles = [
     (0, lit_1.css) `
       :host {
         display: block;
-        max-width: 800px;
+        max-width: 640px;
         margin: 0 auto;
         padding: 16px;
       }
 
       .header {
-        margin-bottom: 24px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--vscode-panel-border);
       }
 
       .header h1 {
-        font-size: 24px;
+        font-size: 18px;
         font-weight: 600;
-        margin: 0 0 8px 0;
+        margin: 0 0 4px 0;
+        color: var(--vscode-foreground);
       }
 
       .header p {
+        font-size: 12px;
         margin: 0;
-        color: var(--description);
+        color: var(--vscode-descriptionForeground);
       }
 
       vscode-tabs {
-        margin-top: 16px;
+        margin-top: 12px;
+      }
+
+      .tab-content {
+        padding: 12px 0;
       }
 
       .provider-list {
-        margin-top: 16px;
+        display: flex;
+        flex-direction: column;
       }
 
-      .loading {
-        padding: 40px;
-        text-align: center;
-        color: var(--description);
+      .provider-list > * {
+        margin-bottom: 12px;
       }
 
-      .empty {
-        padding: 24px;
+      .provider-list > *:last-child {
+        margin-bottom: 0;
+      }
+
+      .loading, .error, .empty {
+        padding: 40px 16px;
         text-align: center;
-        color: var(--description);
+        color: var(--vscode-descriptionForeground);
+        font-size: 13px;
+      }
+
+      .error {
+        color: var(--vscode-errorForeground);
       }
     `
 ];

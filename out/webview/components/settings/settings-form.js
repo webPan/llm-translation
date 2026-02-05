@@ -27,49 +27,57 @@ let SettingsForm = class SettingsForm extends base_element_1.BaseElement {
         if (!this.editedConfig)
             return (0, lit_1.html) ``;
         return (0, lit_1.html) `
-      <div class="form-group">
-        <label>默认服务商</label>
-        <vscode-single-select
-          .value="${this.editedConfig.defaultProvider}"
-          @change="${this._handleProviderChange}"
-        >
-          <vscode-option value="deepseek">DeepSeek</vscode-option>
-          <vscode-option value="qwen">千问 (Qwen)</vscode-option>
-          <vscode-option value="kimi">Kimi</vscode-option>
-          <vscode-option value="glm">智谱 GLM</vscode-option>
-        </vscode-single-select>
-      </div>
+      <div class="card">
+        <div class="card-header">常规设置</div>
 
-      <div class="form-group">
-        <label>显示模式</label>
-        <vscode-single-select
-          .value="${this.editedConfig.displayMode}"
-          @change="${this._handleDisplayModeChange}"
-        >
-          <vscode-option value="simple">简单模式</vscode-option>
-          <vscode-option value="normal">完整模式</vscode-option>
-        </vscode-single-select>
-      </div>
+        <div class="field">
+          <label>默认服务商</label>
+          <vscode-single-select
+            .value="${this.editedConfig.defaultProvider}"
+            @change="${this._handleProviderChange}"
+          >
+            <vscode-option value="deepseek">DeepSeek</vscode-option>
+            <vscode-option value="qwen">千问</vscode-option>
+            <vscode-option value="kimi">Kimi</vscode-option>
+            <vscode-option value="glm">智谱</vscode-option>
+          </vscode-single-select>
+        </div>
 
-      <div class="form-group">
-        <label>默认目标语言</label>
-        <vscode-single-select
-          .value="${this.editedConfig.defaultTargetLang}"
-          @change="${this._handleTargetLangChange}"
-        >
-          <vscode-option value="zh">中文</vscode-option>
-          <vscode-option value="en">English</vscode-option>
-          <vscode-option value="ja">日本語</vscode-option>
-        </vscode-single-select>
-      </div>
+        <div class="field">
+          <label>显示模式</label>
+          <vscode-single-select
+            .value="${this.editedConfig.displayMode}"
+            @change="${this._handleDisplayModeChange}"
+          >
+            <vscode-option value="simple">简单</vscode-option>
+            <vscode-option value="normal">完整</vscode-option>
+          </vscode-single-select>
+        </div>
 
-      <div class="actions">
-        <vscode-button
-          .disabled="${this.isSaving}"
-          @click="${this._handleSave}"
-        >
-          ${this.isSaving ? '保存中...' : '保存设置'}
-        </vscode-button>
+        <div class="field">
+          <label>目标语言</label>
+          <vscode-single-select
+            .value="${this.editedConfig.defaultTargetLang}"
+            @change="${this._handleTargetLangChange}"
+          >
+            <vscode-option value="zh">中文</vscode-option>
+            <vscode-option value="en">English</vscode-option>
+            <vscode-option value="ja">日本語</vscode-option>
+            <vscode-option value="ko">한국어</vscode-option>
+            <vscode-option value="de">Deutsch</vscode-option>
+            <vscode-option value="fr">Français</vscode-option>
+            <vscode-option value="es">Español</vscode-option>
+          </vscode-single-select>
+        </div>
+
+        <div class="actions">
+          <vscode-button
+            .disabled="${this.isSaving}"
+            @click="${this._handleSave}"
+          >
+            保存
+          </vscode-button>
+        </div>
       </div>
     `;
     }
@@ -107,26 +115,52 @@ exports.SettingsForm = SettingsForm;
 SettingsForm.styles = [
     base_element_1.BaseElement.styles,
     (0, lit_1.css) `
-      .form-group {
-        margin-bottom: 20px;
+      :host {
+        display: block;
       }
 
-      label {
-        display: block;
-        margin-bottom: 6px;
+      .card {
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 3px;
+        padding: 12px;
+      }
+
+      .card-header {
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 600;
+        color: var(--vscode-foreground);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
+      }
+
+      .field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+
+      .field:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .field label {
+        font-size: 12px;
+        color: var(--vscode-descriptionForeground);
+        min-width: 90px;
       }
 
       vscode-single-select {
-        width: 100%;
-        max-width: 300px;
+        flex: 1;
       }
 
       .actions {
-        margin-top: 24px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border);
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid var(--vscode-panel-border);
+        display: flex;
+        justify-content: flex-end;
       }
     `
 ];

@@ -49,12 +49,18 @@ export class SettingsPanelController extends BasePanelController {
   <style>
     /* 基础重置样式 */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     body {
       font-family: var(--vscode-font-family);
       font-size: var(--vscode-font-size);
       background: var(--vscode-editor-background);
       color: var(--vscode-editor-foreground);
+      display: flex;
+      justify-content: center;
+    }
+
+    settings-page {
+      width: 100%;
     }
   </style>
 </head>

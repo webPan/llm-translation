@@ -4347,49 +4347,57 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     render() {
       if (!this.editedConfig) return b2``;
       return b2`
-      <div class="form-group">
-        <label>默认服务商</label>
-        <vscode-single-select
-          .value="${this.editedConfig.defaultProvider}"
-          @change="${this._handleProviderChange}"
-        >
-          <vscode-option value="deepseek">DeepSeek</vscode-option>
-          <vscode-option value="qwen">千问 (Qwen)</vscode-option>
-          <vscode-option value="kimi">Kimi</vscode-option>
-          <vscode-option value="glm">智谱 GLM</vscode-option>
-        </vscode-single-select>
-      </div>
+      <div class="card">
+        <div class="card-header">常规设置</div>
 
-      <div class="form-group">
-        <label>显示模式</label>
-        <vscode-single-select
-          .value="${this.editedConfig.displayMode}"
-          @change="${this._handleDisplayModeChange}"
-        >
-          <vscode-option value="simple">简单模式</vscode-option>
-          <vscode-option value="normal">完整模式</vscode-option>
-        </vscode-single-select>
-      </div>
+        <div class="field">
+          <label>默认服务商</label>
+          <vscode-single-select
+            .value="${this.editedConfig.defaultProvider}"
+            @change="${this._handleProviderChange}"
+          >
+            <vscode-option value="deepseek">DeepSeek</vscode-option>
+            <vscode-option value="qwen">千问</vscode-option>
+            <vscode-option value="kimi">Kimi</vscode-option>
+            <vscode-option value="glm">智谱</vscode-option>
+          </vscode-single-select>
+        </div>
 
-      <div class="form-group">
-        <label>默认目标语言</label>
-        <vscode-single-select
-          .value="${this.editedConfig.defaultTargetLang}"
-          @change="${this._handleTargetLangChange}"
-        >
-          <vscode-option value="zh">中文</vscode-option>
-          <vscode-option value="en">English</vscode-option>
-          <vscode-option value="ja">日本語</vscode-option>
-        </vscode-single-select>
-      </div>
+        <div class="field">
+          <label>显示模式</label>
+          <vscode-single-select
+            .value="${this.editedConfig.displayMode}"
+            @change="${this._handleDisplayModeChange}"
+          >
+            <vscode-option value="simple">简单</vscode-option>
+            <vscode-option value="normal">完整</vscode-option>
+          </vscode-single-select>
+        </div>
 
-      <div class="actions">
-        <vscode-button
-          .disabled="${this.isSaving}"
-          @click="${this._handleSave}"
-        >
-          ${this.isSaving ? "\u4FDD\u5B58\u4E2D..." : "\u4FDD\u5B58\u8BBE\u7F6E"}
-        </vscode-button>
+        <div class="field">
+          <label>目标语言</label>
+          <vscode-single-select
+            .value="${this.editedConfig.defaultTargetLang}"
+            @change="${this._handleTargetLangChange}"
+          >
+            <vscode-option value="zh">中文</vscode-option>
+            <vscode-option value="en">English</vscode-option>
+            <vscode-option value="ja">日本語</vscode-option>
+            <vscode-option value="ko">한국어</vscode-option>
+            <vscode-option value="de">Deutsch</vscode-option>
+            <vscode-option value="fr">Français</vscode-option>
+            <vscode-option value="es">Español</vscode-option>
+          </vscode-single-select>
+        </div>
+
+        <div class="actions">
+          <vscode-button
+            .disabled="${this.isSaving}"
+            @click="${this._handleSave}"
+          >
+            保存
+          </vscode-button>
+        </div>
       </div>
     `;
     }
@@ -4425,26 +4433,52 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
   SettingsForm.styles = [
     BaseElement.styles,
     i`
-      .form-group {
-        margin-bottom: 20px;
+      :host {
+        display: block;
       }
 
-      label {
-        display: block;
-        margin-bottom: 6px;
+      .card {
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 3px;
+        padding: 12px;
+      }
+
+      .card-header {
         font-size: 13px;
-        font-weight: 500;
+        font-weight: 600;
+        color: var(--vscode-foreground);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
+      }
+
+      .field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+
+      .field:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .field label {
+        font-size: 12px;
+        color: var(--vscode-descriptionForeground);
+        min-width: 90px;
       }
 
       vscode-single-select {
-        width: 100%;
-        max-width: 300px;
+        flex: 1;
       }
 
       .actions {
-        margin-top: 24px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border);
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid var(--vscode-panel-border);
+        display: flex;
+        justify-content: flex-end;
       }
     `
   ];
@@ -4887,38 +4921,39 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     }
     render() {
       if (!this.editedProvider) return b2``;
-      const statusClass = this.editedProvider.configured ? "configured" : "unconfigured";
       return b2`
       <div class="card">
-        <div class="header">
-          <span class="status-dot ${statusClass}"></span>
-          ${this.editedProvider.name}
+        <div class="card-header">
+          <span class="card-title">${this.editedProvider.name}</span>
+          <span class="status ${this.editedProvider.configured ? "configured" : "unconfigured"}">
+            ${this.editedProvider.configured ? "\u5DF2\u914D\u7F6E" : "\u672A\u914D\u7F6E"}
+          </span>
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label>API Key</label>
           <vscode-textfield
             type="password"
             .value="${this.editedProvider.apiKey}"
-            placeholder="输入 API Key"
+            placeholder="sk-..."
             @input="${this._handleApiKeyChange}"
           ></vscode-textfield>
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label>Base URL</label>
           <vscode-textfield
             .value="${this.editedProvider.baseUrl}"
-            placeholder="https://api.example.com"
+            placeholder="https://..."
             @input="${this._handleBaseUrlChange}"
           ></vscode-textfield>
         </div>
 
-        <div class="form-group">
+        <div class="field">
           <label>模型</label>
           <vscode-textfield
             .value="${this.editedProvider.model}"
-            placeholder="例如：gpt-3.5-turbo"
+            placeholder="gpt-3.5-turbo"
             @input="${this._handleModelChange}"
           ></vscode-textfield>
         </div>
@@ -4928,7 +4963,7 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
             .disabled="${this.isSaving}"
             @click="${this._handleSave}"
           >
-            ${this.isSaving ? "\u4FDD\u5B58\u4E2D..." : "\u4FDD\u5B58"}
+            保存
           </vscode-button>
         </div>
       </div>
@@ -4966,53 +5001,74 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
   ProviderCard.styles = [
     BaseElement.styles,
     i`
-      .card {
-        padding: 16px;
-        background: var(--vscode-editor-inactiveSelectionBackground);
-        border-radius: 6px;
-        margin-bottom: 12px;
+      :host {
+        display: block;
       }
 
-      .header {
+      .card {
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 3px;
+        padding: 12px;
+      }
+
+      .card-header {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
-        font-weight: 600;
-        font-size: 14px;
-      }
-
-      .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-      }
-
-      .status-dot.configured {
-        background: var(--success);
-      }
-
-      .status-dot.unconfigured {
-        background: var(--error);
-      }
-
-      .form-group {
+        justify-content: space-between;
         margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
       }
 
-      label {
-        display: block;
-        margin-bottom: 4px;
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--vscode-foreground);
+      }
+
+      .status {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 2px;
+      }
+
+      .status.configured {
+        color: var(--vscode-testing-iconPassed);
+        background: var(--vscode-testing-iconPassed);
+        opacity: 0.15;
+      }
+
+      .status.unconfigured {
+        color: var(--vscode-descriptionForeground);
+        background: var(--vscode-descriptionForeground);
+        opacity: 0.15;
+      }
+
+      .field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+
+      .field:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .field label {
         font-size: 12px;
-        color: var(--description);
+        color: var(--vscode-descriptionForeground);
+        min-width: 70px;
       }
 
       vscode-textfield {
-        width: 100%;
+        flex: 1;
       }
 
       .actions {
-        margin-top: 16px;
+        margin-top: 12px;
+        padding-top: 8px;
+        border-top: 1px solid var(--vscode-panel-border);
         display: flex;
         justify-content: flex-end;
       }
@@ -5060,58 +5116,50 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     }
     render() {
       if (this.isLoading) {
-        return b2`
-        <div class="loading">
-          <p>加载中...</p>
-        </div>
-      `;
+        return b2`<div class="loading">加载中...</div>`;
       }
       if (this.error) {
-        return b2`
-        <div class="error">
-          <p>${this.error}</p>
-        </div>
-      `;
+        return b2`<div class="error">${this.error}</div>`;
       }
       if (!this.config) {
-        return b2`
-        <div class="empty">
-          <p>暂无配置</p>
-        </div>
-      `;
+        return b2`<div class="empty">暂无配置</div>`;
       }
       const providers = Object.values(this.config.providers);
       return b2`
       <div class="header">
-        <h1>LLM Translation 设置</h1>
-        <p>配置您的翻译插件</p>
+        <h1>设置</h1>
+        <p>配置翻译插件的首选项和服务商</p>
       </div>
 
       <vscode-tabs>
         <vscode-tab-header slot="header">常规</vscode-tab-header>
         <vscode-tab-panel>
-          <settings-form
-            .config="${this.config.general}"
-            @save="${this._handleGeneralSave}"
-          ></settings-form>
+          <div class="tab-content">
+            <settings-form
+              .config="${this.config.general}"
+              @save="${this._handleGeneralSave}"
+            ></settings-form>
+          </div>
         </vscode-tab-panel>
 
         <vscode-tab-header slot="header">服务商</vscode-tab-header>
         <vscode-tab-panel>
-          <div class="provider-list">
-            ${providers.length === 0 ? b2`<div class="empty">暂无配置的服务商</div>` : providers.map((provider) => b2`
-                  <provider-card
-                    .provider="${provider}"
-                    @save="${this._handleProviderSave}"
-                  ></provider-card>
-                `)}
+          <div class="tab-content">
+            <div class="provider-list">
+              ${providers.length === 0 ? b2`<div class="empty">暂无配置的服务商</div>` : providers.map((provider) => b2`
+                    <provider-card
+                      .provider="${provider}"
+                      @save="${this._handleProviderSave}"
+                    ></provider-card>
+                  `)}
+            </div>
           </div>
         </vscode-tab-panel>
 
         <vscode-tab-header slot="header">模板</vscode-tab-header>
         <vscode-tab-panel>
-          <div class="empty">
-            <p>模板编辑功能开发中...</p>
+          <div class="tab-content">
+            <div class="empty">模板编辑功能开发中...</div>
           </div>
         </vscode-tab-panel>
       </vscode-tabs>
@@ -5137,44 +5185,60 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     i`
       :host {
         display: block;
-        max-width: 800px;
+        max-width: 640px;
         margin: 0 auto;
         padding: 16px;
       }
 
       .header {
-        margin-bottom: 24px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--vscode-panel-border);
       }
 
       .header h1 {
-        font-size: 24px;
+        font-size: 18px;
         font-weight: 600;
-        margin: 0 0 8px 0;
+        margin: 0 0 4px 0;
+        color: var(--vscode-foreground);
       }
 
       .header p {
+        font-size: 12px;
         margin: 0;
-        color: var(--description);
+        color: var(--vscode-descriptionForeground);
       }
 
       vscode-tabs {
-        margin-top: 16px;
+        margin-top: 12px;
+      }
+
+      .tab-content {
+        padding: 12px 0;
       }
 
       .provider-list {
-        margin-top: 16px;
+        display: flex;
+        flex-direction: column;
       }
 
-      .loading {
-        padding: 40px;
-        text-align: center;
-        color: var(--description);
+      .provider-list > * {
+        margin-bottom: 12px;
       }
 
-      .empty {
-        padding: 24px;
+      .provider-list > *:last-child {
+        margin-bottom: 0;
+      }
+
+      .loading, .error, .empty {
+        padding: 40px 16px;
         text-align: center;
-        color: var(--description);
+        color: var(--vscode-descriptionForeground);
+        font-size: 13px;
+      }
+
+      .error {
+        color: var(--vscode-errorForeground);
       }
     `
   ];
