@@ -62,10 +62,10 @@ async function init() {
         request('config.update', { key: 'displayMode', value: detail.displayMode }),
         request('config.update', { key: 'defaultTargetLang', value: detail.defaultTargetLang })
       ]);
-      post('notification.show', { message: '设置已保存', type: 'info' });
+      post('notification.show', { message: '保存成功：设置已保存', type: 'info' });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '保存失败';
-      post('notification.show', { message, type: 'error' });
+      const message = error instanceof Error ? error.message : '保存失败，请重试';
+      post('notification.show', { message: `保存失败：${message}`, type: 'error' });
     }
   });
 
@@ -80,10 +80,10 @@ async function init() {
           model: detail.model
         }
       });
-      post('notification.show', { message: '服务商配置已保存', type: 'info' });
+      post('notification.show', { message: '保存成功：服务商配置已保存', type: 'info' });
     } catch (error) {
-      const message = error instanceof Error ? error.message : '保存失败';
-      post('notification.show', { message, type: 'error' });
+      const message = error instanceof Error ? error.message : '保存失败，请重试';
+      post('notification.show', { message: `保存失败：${message}`, type: 'error' });
     }
   });
 
@@ -148,6 +148,24 @@ async function init() {
       post('notification.show', { message: '模板 JSON 已复制到剪贴板', type: 'info' });
     } catch (error) {
       const message = error instanceof Error ? error.message : '导出失败';
+      post('notification.show', { message, type: 'error' });
+    }
+  });
+
+  app.addEventListener('template-copy', async (e: Event) => {
+    const detail = (e as CustomEvent<PromptTemplate>).detail;
+    try {
+      const newTemplate: PromptTemplate = {
+        ...detail,
+        id: `custom-${Date.now()}`,
+        name: `${detail.name} (复制)`,
+        isBuiltin: false
+      };
+      await request('config.templates.save', { template: newTemplate });
+      post('notification.show', { message: '模板已复制', type: 'info' });
+      refreshTemplates();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '复制失败';
       post('notification.show', { message, type: 'error' });
     }
   });

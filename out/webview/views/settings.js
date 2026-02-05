@@ -5523,7 +5523,15 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
       <div class="template-item ${isDefault ? "is-default" : ""}" @click="${() => this._handleSelect(template)}">
         <div class="template-header">
           <span class="template-name">${template.name}</span>
-          <span class="template-badge">${isDefault ? "\u9ED8\u8BA4" : isBuiltin ? "\u5185\u7F6E" : "\u81EA\u5B9A\u4E49"}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="template-badge">${isDefault ? "\u9ED8\u8BA4" : isBuiltin ? "\u5185\u7F6E" : "\u81EA\u5B9A\u4E49"}</span>
+            ${isBuiltin ? b2`
+              <span class="template-badge-copy" @click="${(e8) => {
+        e8.stopPropagation();
+        this._handleCopy(template);
+      }}">复制</span>
+            ` : ""}
+          </div>
         </div>
         <div class="template-description">${template.description}</div>
         ${!isBuiltin ? b2`
@@ -5643,6 +5651,13 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
         composed: true
       }));
     }
+    _handleCopy(template) {
+      this.dispatchEvent(new CustomEvent("copy", {
+        detail: template,
+        bubbles: true,
+        composed: true
+      }));
+    }
     _handleImport() {
       this.dispatchEvent(new CustomEvent("import", {
         bubbles: true,
@@ -5730,6 +5745,20 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
       .template-item.is-default .template-badge {
         background: var(--vscode-button-primaryBackground);
         color: var(--vscode-button-primaryForeground);
+      }
+
+      .template-badge-copy {
+        font-size: 10px;
+        padding: 2px 4px;
+        border-radius: 2px;
+        background: var(--vscode-button-primaryBackground);
+        color: var(--vscode-button-primaryForeground);
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+
+      .template-badge-copy:hover {
+        opacity: 0.8;
       }
 
       .template-description {
@@ -5870,6 +5899,7 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
               @set-default="${this._handleTemplateSetDefault}"
               @import="${this._handleTemplateImport}"
               @export="${this._handleTemplateExport}"
+              @copy="${this._handleTemplateCopy}"
             ></template-list>
           </div>
         </vscode-tab-panel>
@@ -5919,6 +5949,13 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     }
     _handleTemplateExport() {
       this.dispatchEvent(new CustomEvent("template-export", {
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleTemplateCopy(e8) {
+      this.dispatchEvent(new CustomEvent("template-copy", {
+        detail: e8.detail,
         bubbles: true,
         composed: true
       }));
@@ -6123,6 +6160,23 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
         post("notification.show", { message: "\u6A21\u677F JSON \u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F", type: "info" });
       } catch (error) {
         const message = error instanceof Error ? error.message : "\u5BFC\u51FA\u5931\u8D25";
+        post("notification.show", { message, type: "error" });
+      }
+    });
+    app.addEventListener("template-copy", async (e8) => {
+      const detail = e8.detail;
+      try {
+        const newTemplate = {
+          ...detail,
+          id: `custom-${Date.now()}`,
+          name: `${detail.name} (\u590D\u5236)`,
+          isBuiltin: false
+        };
+        await request("config.templates.save", { template: newTemplate });
+        post("notification.show", { message: "\u6A21\u677F\u5DF2\u590D\u5236", type: "info" });
+        refreshTemplates();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "\u590D\u5236\u5931\u8D25";
         post("notification.show", { message, type: "error" });
       }
     });

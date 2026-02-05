@@ -212,7 +212,7 @@ export class SettingsPanelController extends BasePanelController {
           return { success: false, error: '不能修改内置模板' };
         }
 
-        if (template.id.startsWith('custom-')) {
+        if (existing) {
           await promptManager.updateCustomTemplate(template);
         } else {
           await promptManager.addCustomTemplate(template);

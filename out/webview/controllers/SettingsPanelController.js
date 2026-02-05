@@ -223,7 +223,7 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
                 if (existing && !template.id.startsWith('custom-')) {
                     return { success: false, error: '不能修改内置模板' };
                 }
-                if (template.id.startsWith('custom-')) {
+                if (existing) {
                     await promptManager.updateCustomTemplate(template);
                 }
                 else {

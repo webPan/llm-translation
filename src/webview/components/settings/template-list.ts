@@ -91,6 +91,20 @@ export class TemplateList extends BaseElement {
         color: var(--vscode-button-primaryForeground);
       }
 
+      .template-badge-copy {
+        font-size: 10px;
+        padding: 2px 4px;
+        border-radius: 2px;
+        background: var(--vscode-button-primaryBackground);
+        color: var(--vscode-button-primaryForeground);
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+
+      .template-badge-copy:hover {
+        opacity: 0.8;
+      }
+
       .template-description {
         font-size: 11px;
         color: var(--vscode-descriptionForeground);
@@ -167,7 +181,12 @@ export class TemplateList extends BaseElement {
       <div class="template-item ${isDefault ? 'is-default' : ''}" @click="${() => this._handleSelect(template)}">
         <div class="template-header">
           <span class="template-name">${template.name}</span>
-          <span class="template-badge">${isDefault ? '默认' : (isBuiltin ? '内置' : '自定义')}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="template-badge">${isDefault ? '默认' : (isBuiltin ? '内置' : '自定义')}</span>
+            ${isBuiltin ? html`
+              <span class="template-badge-copy" @click="${(e: Event) => { e.stopPropagation(); this._handleCopy(template); }}">复制</span>
+            ` : ''}
+          </div>
         </div>
         <div class="template-description">${template.description}</div>
         ${!isBuiltin ? html`
@@ -296,6 +315,14 @@ export class TemplateList extends BaseElement {
   private _handleSetDefault(template: PromptTemplate) {
     this.dispatchEvent(new CustomEvent('set-default', {
       detail: template.id,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleCopy(template: PromptTemplate) {
+    this.dispatchEvent(new CustomEvent('copy', {
+      detail: template,
       bubbles: true,
       composed: true
     }));

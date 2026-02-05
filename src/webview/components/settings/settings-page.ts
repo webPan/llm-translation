@@ -174,6 +174,7 @@ export class SettingsPage extends BaseElement {
               @set-default="${this._handleTemplateSetDefault}"
               @import="${this._handleTemplateImport}"
               @export="${this._handleTemplateExport}"
+              @copy="${this._handleTemplateCopy}"
             ></template-list>
           </div>
         </vscode-tab-panel>
@@ -230,6 +231,14 @@ export class SettingsPage extends BaseElement {
 
   private _handleTemplateExport() {
     this.dispatchEvent(new CustomEvent('template-export', {
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleTemplateCopy(e: CustomEvent<PromptTemplate>) {
+    this.dispatchEvent(new CustomEvent('template-copy', {
+      detail: e.detail,
       bubbles: true,
       composed: true
     }));

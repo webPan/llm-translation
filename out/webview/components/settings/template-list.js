@@ -52,7 +52,12 @@ let TemplateList = class TemplateList extends base_element_1.BaseElement {
       <div class="template-item ${isDefault ? 'is-default' : ''}" @click="${() => this._handleSelect(template)}">
         <div class="template-header">
           <span class="template-name">${template.name}</span>
-          <span class="template-badge">${isDefault ? '默认' : (isBuiltin ? '内置' : '自定义')}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="template-badge">${isDefault ? '默认' : (isBuiltin ? '内置' : '自定义')}</span>
+            ${isBuiltin ? (0, lit_1.html) `
+              <span class="template-badge-copy" @click="${(e) => { e.stopPropagation(); this._handleCopy(template); }}">复制</span>
+            ` : ''}
+          </div>
         </div>
         <div class="template-description">${template.description}</div>
         ${!isBuiltin ? (0, lit_1.html) `
@@ -172,6 +177,13 @@ let TemplateList = class TemplateList extends base_element_1.BaseElement {
             composed: true
         }));
     }
+    _handleCopy(template) {
+        this.dispatchEvent(new CustomEvent('copy', {
+            detail: template,
+            bubbles: true,
+            composed: true
+        }));
+    }
     _handleImport() {
         this.dispatchEvent(new CustomEvent('import', {
             bubbles: true,
@@ -260,6 +272,20 @@ TemplateList.styles = [
       .template-item.is-default .template-badge {
         background: var(--vscode-button-primaryBackground);
         color: var(--vscode-button-primaryForeground);
+      }
+
+      .template-badge-copy {
+        font-size: 10px;
+        padding: 2px 4px;
+        border-radius: 2px;
+        background: var(--vscode-button-primaryBackground);
+        color: var(--vscode-button-primaryForeground);
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+
+      .template-badge-copy:hover {
+        opacity: 0.8;
       }
 
       .template-description {
