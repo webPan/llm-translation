@@ -12,7 +12,7 @@ import { registerTranslateCommands } from './commands/translate';
 import { registerConfigCommands } from './commands/config';
 import { resetPromptManager } from './services/promptManager';
 import { resetResultParser } from './services/parser';
-import { initStatusBar, resetStatusBar } from './utils/statusBar';
+import { initStatusBar, resetStatusBar } from './services/statusBar';
 
 // 导出面板管理器以供其他模块使用
 export { getSimplePanelManager, getFullPanelManager, getSettingsPanelManager } from './webview/controllers';

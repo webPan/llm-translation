@@ -43,7 +43,7 @@ const translate_1 = require("./commands/translate");
 const config_1 = require("./commands/config");
 const promptManager_1 = require("./services/promptManager");
 const parser_1 = require("./services/parser");
-const statusBar_1 = require("./utils/statusBar");
+const statusBar_1 = require("./services/statusBar");
 // 导出面板管理器以供其他模块使用
 var controllers_2 = require("./webview/controllers");
 Object.defineProperty(exports, "getSimplePanelManager", { enumerable: true, get: function () { return controllers_2.getSimplePanelManager; } });

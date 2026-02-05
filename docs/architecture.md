@@ -72,12 +72,15 @@ src/
 ├── services/                    # 核心服务
 │   ├── promptManager.ts         # 提示词模板管理
 │   ├── parser.ts                # 翻译结果解析器
-│   └── translator.ts            # 翻译服务主逻辑
-├── types/                       # 类型定义
-│   └── index.ts
-├── utils/                       # 工具函数
-│   ├── http.ts
+│   ├── translator.ts            # 翻译服务主逻辑
 │   └── statusBar.ts             # 状态栏管理
+├── types/                       # 类型定义
+│   ├── index.ts                 # 统一导出
+│   ├── language.ts              # 语言相关
+│   ├── provider.ts              # Provider 相关
+│   ├── translation.ts           # 翻译相关
+│   ├── config.ts                # 配置相关
+│   └── api.ts                   # API 请求/响应
 └── webview/                     # Webview 三层架构
     ├── controllers/             # Panel Controllers (VS Code 端)
     │   ├── index.ts             # 统一导出
@@ -93,7 +96,7 @@ src/
     │   ├── settings.ts
     │   ├── simple.ts
     │   └── full.ts
-    └── utils/                   # Webview 端工具模块
+    └── core/                    # Webview 核心基础设施
         └── bridge.ts            # 消息桥接模块
 ```
 
@@ -178,7 +181,7 @@ export class ProviderCard extends LitElement {
 ```typescript
 // 示例：View Entry
 import '../components/settings/provider-card';
-import { request, post } from '../utils/bridge';
+import { request, post } from '../core/bridge';
 
 async function init() {
   const config = await request('config.get');
