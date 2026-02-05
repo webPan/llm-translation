@@ -1,6 +1,6 @@
 /**
  * 设置页面入口
- * 
+ *
  * 使用 Lit 和 @vscode-elements/elements 重构
  */
 
@@ -9,6 +9,7 @@ import '../components/settings/settings-page';
 import type { SettingsPage } from '../components/settings/settings-page';
 import type { GeneralConfig } from '../components/settings/settings-form';
 import type { ProviderConfig } from '../components/settings/provider-card';
+import type { PromptTemplate } from '../components/settings/template-list';
 
 interface AppConfig {
   general: GeneralConfig;
@@ -24,9 +25,10 @@ async function init() {
 
   // 加载配置
   try {
-    const [generalConfig, providersData] = await Promise.all([
+    const [generalConfig, providersData, templatesData] = await Promise.all([
       request<undefined, any>('config.get'),
-      request<undefined, any>('config.providers.get')
+      request<undefined, any>('config.providers.get'),
+      request<undefined, any>('config.templates.get')
     ]);
 
     const config: AppConfig = {
@@ -39,11 +41,15 @@ async function init() {
     };
 
     app.setConfig(config);
+    app.setTemplates(
+      templatesData?.templates || [],
+      templatesData?.defaultId || 'default'
+    );
   } catch (error) {
     console.error('Failed to load config:', error);
-    post('notification.show', { 
-      message: '加载配置失败', 
-      type: 'error' 
+    post('notification.show', {
+      message: '加载配置失败',
+      type: 'error'
     });
   }
 
@@ -80,6 +86,83 @@ async function init() {
       post('notification.show', { message, type: 'error' });
     }
   });
+
+  // 模板事件
+  app.addEventListener('template-save', async (e: Event) => {
+    const detail = (e as CustomEvent<PromptTemplate>).detail;
+    try {
+      await request('config.templates.save', { template: detail });
+      post('notification.show', { message: '模板已保存', type: 'info' });
+      refreshTemplates();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '保存失败';
+      post('notification.show', { message, type: 'error' });
+    }
+  });
+
+  app.addEventListener('template-delete', async (e: Event) => {
+    const detail = (e as CustomEvent<PromptTemplate>).detail;
+    try {
+      await request('config.templates.delete', { id: detail.id });
+      post('notification.show', { message: '模板已删除', type: 'info' });
+      refreshTemplates();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '删除失败';
+      post('notification.show', { message, type: 'error' });
+    }
+  });
+
+  app.addEventListener('template-set-default', async (e: Event) => {
+    const templateId = (e as CustomEvent<string>).detail;
+    try {
+      await request('config.templates.setDefault', { id: templateId });
+      post('notification.show', { message: '默认模板已设置', type: 'info' });
+      refreshTemplates();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '设置失败';
+      post('notification.show', { message, type: 'error' });
+    }
+  });
+
+  app.addEventListener('template-import', async () => {
+    try {
+      // 在 webview 中显示导入对话框
+      const importJson = prompt('请粘贴模板 JSON：');
+      if (importJson) {
+        await request('config.templates.import', { json: importJson });
+        post('notification.show', { message: '模板已导入', type: 'info' });
+        refreshTemplates();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '导入失败';
+      post('notification.show', { message, type: 'error' });
+    }
+  });
+
+  app.addEventListener('template-export', async () => {
+    try {
+      const result = await request<string, any>('config.templates.export');
+      const json = result?.templates || '[]';
+      // 复制到剪贴板
+      await navigator.clipboard.writeText(json);
+      post('notification.show', { message: '模板 JSON 已复制到剪贴板', type: 'info' });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '导出失败';
+      post('notification.show', { message, type: 'error' });
+    }
+  });
+
+  // 刷新模板列表
+  async function refreshTemplates() {
+    const templatesData = await request<undefined, any>('config.templates.get');
+    const currentApp = document.getElementById('app') as SettingsPage | null;
+    if (currentApp) {
+      currentApp.setTemplates(
+        templatesData?.templates || [],
+        templatesData?.defaultId || 'default'
+      );
+    }
+  }
 
   // 通知面板已就绪
   post('panel.focus');

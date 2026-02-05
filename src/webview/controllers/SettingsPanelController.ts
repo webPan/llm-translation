@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ProviderManager } from '../../providers';
+import { getPromptManager } from '../../services/promptManager';
 import { BasePanelController, BasePanelManager, type BridgeMessage } from './BasePanelController';
 
 /**
@@ -181,6 +182,90 @@ export class SettingsPanelController extends BasePanelController {
         return { success: true };
       },
 
+      // 获取模板列表
+      'config.templates.get': async () => {
+        const promptManager = getPromptManager();
+        const templates = promptManager.getAllTemplates();
+        const defaultId = promptManager.getDefaultTemplateId();
+
+        return {
+          templates: templates.map(t => ({
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            template: t.template,
+            isBuiltin: !t.id.startsWith('custom-')
+          })),
+          defaultId
+        };
+      },
+
+      // 保存模板
+      'config.templates.save': async (message) => {
+        const { template } = (message.payload || {}) as any;
+        if (!template) return { success: false, error: 'Missing template' };
+
+        const promptManager = getPromptManager();
+        const existing = promptManager.getTemplate(template.id);
+
+        if (existing && !template.id.startsWith('custom-')) {
+          return { success: false, error: '不能修改内置模板' };
+        }
+
+        if (template.id.startsWith('custom-')) {
+          await promptManager.updateCustomTemplate(template);
+        } else {
+          await promptManager.addCustomTemplate(template);
+        }
+
+        return { success: true };
+      },
+
+      // 删除模板
+      'config.templates.delete': async (message) => {
+        const { id } = (message.payload || {}) as any;
+        if (!id) return { success: false, error: 'Missing id' };
+
+        if (!id.startsWith('custom-')) {
+          return { success: false, error: '不能删除内置模板' };
+        }
+
+        const promptManager = getPromptManager();
+        await promptManager.deleteCustomTemplate(id);
+
+        return { success: true };
+      },
+
+      // 设置默认模板
+      'config.templates.setDefault': async (message) => {
+        const { id } = (message.payload || {}) as any;
+        if (!id) return { success: false, error: 'Missing id' };
+
+        const promptManager = getPromptManager();
+        await promptManager.setDefaultTemplate(id);
+
+        return { success: true };
+      },
+
+      // 导出模板
+      'config.templates.export': async () => {
+        const promptManager = getPromptManager();
+        const json = promptManager.exportTemplates();
+
+        return { templates: json };
+      },
+
+      // 导入模板
+      'config.templates.import': async (message) => {
+        const { json } = (message.payload || {}) as any;
+        if (!json) return { success: false, error: 'Missing json' };
+
+        const promptManager = getPromptManager();
+        await promptManager.importTemplates(json);
+
+        return { success: true };
+      },
+
       // 日志
       'log.info': (message) => {
         console.log('[SettingsPanel]', (message.payload as any)?.message);
@@ -199,8 +284,17 @@ export class SettingsPanelController extends BasePanelController {
     });
   }
 
+  refreshTemplates(): void {
+    this.sendMessage({
+      type: 'config.templates.refresh',
+      timestamp: Date.now(),
+      payload: {},
+    });
+  }
+
   protected override onPanelVisible(): void {
     this.refreshProviders();
+    this.refreshTemplates();
   }
 }
 

@@ -5087,6 +5087,312 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     t3("provider-card")
   ], ProviderCard);
 
+  // src/webview/components/settings/template-list.ts
+  var TemplateList = class extends BaseElement {
+    constructor() {
+      super(...arguments);
+      this.templates = [];
+      this.defaultTemplateId = "";
+      this.editingTemplate = null;
+      this.showNewForm = false;
+    }
+    setTemplates(templates, defaultId) {
+      this.templates = templates;
+      this.defaultTemplateId = defaultId;
+    }
+    render() {
+      return b2`
+      <div class="toolbar">
+        <span class="toolbar-title">提示词模板</span>
+        <div class="toolbar-actions">
+          <vscode-button @click="${this._handleImport}" appearance="secondary">导入</vscode-button>
+          <vscode-button @click="${this._handleExport}" appearance="secondary">导出</vscode-button>
+          <vscode-button @click="${this._handleNew}">+ 新建</vscode-button>
+        </div>
+      </div>
+
+      ${this.showNewForm || this.editingTemplate ? this._renderEditForm() : ""}
+
+      <div class="template-list">
+        ${this.templates.length === 0 ? b2`<div class="empty">暂无模板</div>` : this.templates.map((template) => this._renderTemplateItem(template))}
+      </div>
+
+      <div class="variables-hint">
+        可用变量: <code>{text}</code> <code>{sourceLang}</code> <code>{targetLang}</code>
+      </div>
+    `;
+    }
+    _renderTemplateItem(template) {
+      const isDefault = template.id === this.defaultTemplateId;
+      const isBuiltin = template.isBuiltin !== false;
+      return b2`
+      <div class="template-item ${isDefault ? "is-default" : ""}" @click="${() => this._handleSelect(template)}">
+        <div class="template-header">
+          <span class="template-name">${template.name}</span>
+          <span class="template-badge">${isDefault ? "\u9ED8\u8BA4" : isBuiltin ? "\u5185\u7F6E" : "\u81EA\u5B9A\u4E49"}</span>
+        </div>
+        <div class="template-description">${template.description}</div>
+        ${!isBuiltin ? b2`
+          <div class="template-actions" @click="${(e8) => e8.stopPropagation()}">
+            <vscode-button @click="${() => this._handleEdit(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">编辑</vscode-button>
+            <vscode-button @click="${() => this._handleDelete(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">删除</vscode-button>
+            ${!isDefault ? b2`
+              <vscode-button @click="${() => this._handleSetDefault(template)}" appearance="primary" style="padding: 2px 8px; font-size: 11px;">设为默认</vscode-button>
+            ` : ""}
+          </div>
+        ` : ""}
+      </div>
+    `;
+    }
+    _renderEditForm() {
+      const isEditing = this.editingTemplate !== null;
+      const template = isEditing ? this.editingTemplate : { id: "", name: "", description: "", template: "" };
+      return b2`
+      <div class="card" style="border: 1px solid var(--vscode-panel-border); border-radius: 3px; padding: 12px; margin-bottom: 12px;">
+        <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--vscode-panel-border);">
+          ${isEditing ? "\u7F16\u8F91\u6A21\u677F" : "\u65B0\u5EFA\u6A21\u677F"}
+        </div>
+
+        <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
+          <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">名称</label>
+          <input
+            type="text"
+            id="template-name"
+            .value="${template.name}"
+            placeholder="模板名称"
+            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
+          />
+        </div>
+
+        <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
+          <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">描述</label>
+          <input
+            type="text"
+            id="template-desc"
+            .value="${template.description}"
+            placeholder="简短描述"
+            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
+          />
+        </div>
+
+        <div style="margin-bottom: 8px;">
+          <label style="display: block; font-size: 12px; color: var(--vscode-descriptionForeground); margin-bottom: 4px;">模板内容</label>
+          <textarea
+            id="template-content"
+            rows="8"
+            .value="${template.template}"
+            placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
+            style="width: 100%; padding: 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; font-family: var(--vscode-editor-font-family); resize: vertical; border-radius: 2px; box-sizing: border-box;"
+          ></textarea>
+        </div>
+
+        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+          <vscode-button @click="${this._handleCancelEdit}" appearance="secondary">取消</vscode-button>
+          <vscode-button @click="${this._handleSaveTemplate}">保存</vscode-button>
+        </div>
+      </div>
+    `;
+    }
+    _handleSelect(template) {
+      this.dispatchEvent(new CustomEvent("preview", {
+        detail: template,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleNew() {
+      this.editingTemplate = null;
+      this.showNewForm = true;
+    }
+    _handleEdit(template) {
+      this.editingTemplate = { ...template };
+      this.showNewForm = false;
+    }
+    _handleCancelEdit() {
+      this.editingTemplate = null;
+      this.showNewForm = false;
+    }
+    _handleSaveTemplate() {
+      const nameInput = document.getElementById("template-name");
+      const descInput = document.getElementById("template-desc");
+      const contentInput = document.getElementById("template-content");
+      const template = {
+        id: this.editingTemplate?.id || `custom-${Date.now()}`,
+        name: nameInput?.value || "",
+        description: descInput?.value || "",
+        template: contentInput?.value || "",
+        isBuiltin: false
+      };
+      if (!template.name || !template.template) {
+        this.dispatchEvent(new CustomEvent("error", {
+          detail: "\u8BF7\u586B\u5199\u6A21\u677F\u540D\u79F0\u548C\u5185\u5BB9",
+          bubbles: true
+        }));
+        return;
+      }
+      this.dispatchEvent(new CustomEvent("save", {
+        detail: template,
+        bubbles: true,
+        composed: true
+      }));
+      this.editingTemplate = null;
+      this.showNewForm = false;
+    }
+    _handleDelete(template) {
+      this.dispatchEvent(new CustomEvent("delete", {
+        detail: template,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleSetDefault(template) {
+      this.dispatchEvent(new CustomEvent("set-default", {
+        detail: template.id,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleImport() {
+      this.dispatchEvent(new CustomEvent("import", {
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleExport() {
+      this.dispatchEvent(new CustomEvent("export", {
+        bubbles: true,
+        composed: true
+      }));
+    }
+  };
+  TemplateList.styles = [
+    BaseElement.styles,
+    i`
+      :host {
+        display: block;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
+      }
+
+      .toolbar-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--vscode-foreground);
+      }
+
+      .toolbar-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .template-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .template-item {
+        border: 1px solid var(--vscode-panel-border);
+        border-radius: 3px;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+
+      .template-item:hover {
+        border-color: var(--vscode-button-primaryBackground);
+      }
+
+      .template-item.is-default {
+        border-color: var(--vscode-button-primaryBackground);
+        background: var(--vscode-editor-inactiveSelectionBackground);
+      }
+
+      .template-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+
+      .template-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--vscode-foreground);
+      }
+
+      .template-badge {
+        font-size: 10px;
+        padding: 2px 4px;
+        border-radius: 2px;
+        background: var(--vscode-button-secondaryBackground);
+        color: var(--vscode-button-secondaryForeground);
+      }
+
+      .template-item.is-default .template-badge {
+        background: var(--vscode-button-primaryBackground);
+        color: var(--vscode-button-primaryForeground);
+      }
+
+      .template-description {
+        font-size: 11px;
+        color: var(--vscode-descriptionForeground);
+        line-height: 1.4;
+      }
+
+      .template-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .empty {
+        padding: 40px 16px;
+        text-align: center;
+        color: var(--vscode-descriptionForeground);
+        font-size: 12px;
+      }
+
+      .variables-hint {
+        margin-top: 12px;
+        padding: 8px;
+        background: var(--vscode-textBlockQuote-background);
+        border-left: 3px solid var(--vscode-button-primaryBackground);
+        font-size: 11px;
+        color: var(--vscode-descriptionForeground);
+      }
+
+      .variables-hint code {
+        font-family: var(--vscode-editor-font-family);
+        background: var(--vscode-editor-selectionBackground);
+        padding: 2px 4px;
+        border-radius: 2px;
+      }
+    `
+  ];
+  __decorateClass([
+    r5()
+  ], TemplateList.prototype, "templates", 2);
+  __decorateClass([
+    r5()
+  ], TemplateList.prototype, "defaultTemplateId", 2);
+  __decorateClass([
+    r5()
+  ], TemplateList.prototype, "editingTemplate", 2);
+  __decorateClass([
+    r5()
+  ], TemplateList.prototype, "showNewForm", 2);
+  TemplateList = __decorateClass([
+    t3("template-list")
+  ], TemplateList);
+
   // src/webview/components/settings/settings-page.ts
   var SettingsPage = class extends BaseElement {
     constructor() {
@@ -5094,6 +5400,8 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
       this.config = null;
       this.isLoading = true;
       this.error = null;
+      this.templates = [];
+      this.defaultTemplateId = "default";
     }
     connectedCallback() {
       super.connectedCallback();
@@ -5113,6 +5421,10 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     setConfig(config) {
       this.config = config;
       this.isLoading = false;
+    }
+    setTemplates(templates, defaultId) {
+      this.templates = templates;
+      this.defaultTemplateId = defaultId;
     }
     render() {
       if (this.isLoading) {
@@ -5159,7 +5471,15 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
         <vscode-tab-header slot="header">模板</vscode-tab-header>
         <vscode-tab-panel>
           <div class="tab-content">
-            <div class="empty">模板编辑功能开发中...</div>
+            <template-list
+              .templates="${this.templates}"
+              .defaultTemplateId="${this.defaultTemplateId}"
+              @save="${this._handleTemplateSave}"
+              @delete="${this._handleTemplateDelete}"
+              @set-default="${this._handleTemplateSetDefault}"
+              @import="${this._handleTemplateImport}"
+              @export="${this._handleTemplateExport}"
+            ></template-list>
           </div>
         </vscode-tab-panel>
       </vscode-tabs>
@@ -5175,6 +5495,39 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     _handleProviderSave(e8) {
       this.dispatchEvent(new CustomEvent("save-provider", {
         detail: e8.detail,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleTemplateSave(e8) {
+      this.dispatchEvent(new CustomEvent("template-save", {
+        detail: e8.detail,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleTemplateDelete(e8) {
+      this.dispatchEvent(new CustomEvent("template-delete", {
+        detail: e8.detail,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleTemplateSetDefault(e8) {
+      this.dispatchEvent(new CustomEvent("template-set-default", {
+        detail: e8.detail,
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleTemplateImport() {
+      this.dispatchEvent(new CustomEvent("template-import", {
+        bubbles: true,
+        composed: true
+      }));
+    }
+    _handleTemplateExport() {
+      this.dispatchEvent(new CustomEvent("template-export", {
         bubbles: true,
         composed: true
       }));
@@ -5251,6 +5604,12 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
   __decorateClass([
     r5()
   ], SettingsPage.prototype, "error", 2);
+  __decorateClass([
+    r5()
+  ], SettingsPage.prototype, "templates", 2);
+  __decorateClass([
+    r5()
+  ], SettingsPage.prototype, "defaultTemplateId", 2);
   SettingsPage = __decorateClass([
     t3("settings-page")
   ], SettingsPage);
@@ -5263,9 +5622,10 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
       return;
     }
     try {
-      const [generalConfig, providersData] = await Promise.all([
+      const [generalConfig, providersData, templatesData] = await Promise.all([
         request("config.get"),
-        request("config.providers.get")
+        request("config.providers.get"),
+        request("config.templates.get")
       ]);
       const config = {
         general: {
@@ -5276,6 +5636,10 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
         providers: providersData?.providers || {}
       };
       app.setConfig(config);
+      app.setTemplates(
+        templatesData?.templates || [],
+        templatesData?.defaultId || "default"
+      );
     } catch (error) {
       console.error("Failed to load config:", error);
       post("notification.show", {
@@ -5314,6 +5678,73 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
         post("notification.show", { message, type: "error" });
       }
     });
+    app.addEventListener("template-save", async (e8) => {
+      const detail = e8.detail;
+      try {
+        await request("config.templates.save", { template: detail });
+        post("notification.show", { message: "\u6A21\u677F\u5DF2\u4FDD\u5B58", type: "info" });
+        refreshTemplates();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "\u4FDD\u5B58\u5931\u8D25";
+        post("notification.show", { message, type: "error" });
+      }
+    });
+    app.addEventListener("template-delete", async (e8) => {
+      const detail = e8.detail;
+      try {
+        await request("config.templates.delete", { id: detail.id });
+        post("notification.show", { message: "\u6A21\u677F\u5DF2\u5220\u9664", type: "info" });
+        refreshTemplates();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "\u5220\u9664\u5931\u8D25";
+        post("notification.show", { message, type: "error" });
+      }
+    });
+    app.addEventListener("template-set-default", async (e8) => {
+      const templateId = e8.detail;
+      try {
+        await request("config.templates.setDefault", { id: templateId });
+        post("notification.show", { message: "\u9ED8\u8BA4\u6A21\u677F\u5DF2\u8BBE\u7F6E", type: "info" });
+        refreshTemplates();
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "\u8BBE\u7F6E\u5931\u8D25";
+        post("notification.show", { message, type: "error" });
+      }
+    });
+    app.addEventListener("template-import", async () => {
+      try {
+        const importJson = prompt("\u8BF7\u7C98\u8D34\u6A21\u677F JSON\uFF1A");
+        if (importJson) {
+          await request("config.templates.import", { json: importJson });
+          post("notification.show", { message: "\u6A21\u677F\u5DF2\u5BFC\u5165", type: "info" });
+          refreshTemplates();
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "\u5BFC\u5165\u5931\u8D25";
+        post("notification.show", { message, type: "error" });
+      }
+    });
+    app.addEventListener("template-export", async () => {
+      try {
+        const result = await request("config.templates.export");
+        const json = result?.templates || "[]";
+        await navigator.clipboard.writeText(json);
+        post("notification.show", { message: "\u6A21\u677F JSON \u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F", type: "info" });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "\u5BFC\u51FA\u5931\u8D25";
+        post("notification.show", { message, type: "error" });
+      }
+    });
+    async function refreshTemplates() {
+      const templatesData = await request("config.templates.get");
+      const currentApp = document.getElementById("app");
+      if (currentApp) {
+        currentApp.setTemplates(
+          templatesData?.templates || [],
+          templatesData?.defaultId || "default"
+        );
+      }
+    }
     post("panel.focus");
   }
   document.addEventListener("DOMContentLoaded", init);

@@ -37,6 +37,7 @@ exports.SettingsPanelManager = exports.SettingsPanelController = void 0;
 exports.getSettingsPanelManager = getSettingsPanelManager;
 exports.resetSettingsPanelManager = resetSettingsPanelManager;
 const vscode = __importStar(require("vscode"));
+const promptManager_1 = require("../../services/promptManager");
 const BasePanelController_1 = require("./BasePanelController");
 /**
  * 设置面板控制器
@@ -196,6 +197,76 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
                 this.providerManager.reloadProviders();
                 return { success: true };
             },
+            // 获取模板列表
+            'config.templates.get': async () => {
+                const promptManager = (0, promptManager_1.getPromptManager)();
+                const templates = promptManager.getAllTemplates();
+                const defaultId = promptManager.getDefaultTemplateId();
+                return {
+                    templates: templates.map(t => ({
+                        id: t.id,
+                        name: t.name,
+                        description: t.description,
+                        template: t.template,
+                        isBuiltin: !t.id.startsWith('custom-')
+                    })),
+                    defaultId
+                };
+            },
+            // 保存模板
+            'config.templates.save': async (message) => {
+                const { template } = (message.payload || {});
+                if (!template)
+                    return { success: false, error: 'Missing template' };
+                const promptManager = (0, promptManager_1.getPromptManager)();
+                const existing = promptManager.getTemplate(template.id);
+                if (existing && !template.id.startsWith('custom-')) {
+                    return { success: false, error: '不能修改内置模板' };
+                }
+                if (template.id.startsWith('custom-')) {
+                    await promptManager.updateCustomTemplate(template);
+                }
+                else {
+                    await promptManager.addCustomTemplate(template);
+                }
+                return { success: true };
+            },
+            // 删除模板
+            'config.templates.delete': async (message) => {
+                const { id } = (message.payload || {});
+                if (!id)
+                    return { success: false, error: 'Missing id' };
+                if (!id.startsWith('custom-')) {
+                    return { success: false, error: '不能删除内置模板' };
+                }
+                const promptManager = (0, promptManager_1.getPromptManager)();
+                await promptManager.deleteCustomTemplate(id);
+                return { success: true };
+            },
+            // 设置默认模板
+            'config.templates.setDefault': async (message) => {
+                const { id } = (message.payload || {});
+                if (!id)
+                    return { success: false, error: 'Missing id' };
+                const promptManager = (0, promptManager_1.getPromptManager)();
+                await promptManager.setDefaultTemplate(id);
+                return { success: true };
+            },
+            // 导出模板
+            'config.templates.export': async () => {
+                const promptManager = (0, promptManager_1.getPromptManager)();
+                const json = promptManager.exportTemplates();
+                return { templates: json };
+            },
+            // 导入模板
+            'config.templates.import': async (message) => {
+                const { json } = (message.payload || {});
+                if (!json)
+                    return { success: false, error: 'Missing json' };
+                const promptManager = (0, promptManager_1.getPromptManager)();
+                await promptManager.importTemplates(json);
+                return { success: true };
+            },
             // 日志
             'log.info': (message) => {
                 console.log('[SettingsPanel]', message.payload?.message);
@@ -212,8 +283,16 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
             payload: {},
         });
     }
+    refreshTemplates() {
+        this.sendMessage({
+            type: 'config.templates.refresh',
+            timestamp: Date.now(),
+            payload: {},
+        });
+    }
     onPanelVisible() {
         this.refreshProviders();
+        this.refreshTemplates();
     }
 }
 exports.SettingsPanelController = SettingsPanelController;

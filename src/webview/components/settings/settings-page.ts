@@ -6,8 +6,10 @@ import '@vscode-elements/elements/dist/vscode-tab-panel';
 import { BaseElement } from '../common/base-element';
 import './settings-form';
 import './provider-card';
+import './template-list';
 import type { GeneralConfig } from './settings-form';
 import type { ProviderConfig } from './provider-card';
+import type { PromptTemplate } from './template-list';
 
 interface AppConfig {
   general: GeneralConfig;
@@ -82,6 +84,8 @@ export class SettingsPage extends BaseElement {
   @state() private config: AppConfig | null = null;
   @state() private isLoading = true;
   @state() private error: string | null = null;
+  @state() private templates: PromptTemplate[] = [];
+  @state() private defaultTemplateId: string = 'default';
 
   connectedCallback() {
     super.connectedCallback();
@@ -103,6 +107,11 @@ export class SettingsPage extends BaseElement {
   setConfig(config: AppConfig) {
     this.config = config;
     this.isLoading = false;
+  }
+
+  setTemplates(templates: PromptTemplate[], defaultId: string) {
+    this.templates = templates;
+    this.defaultTemplateId = defaultId;
   }
 
   render() {
@@ -157,7 +166,15 @@ export class SettingsPage extends BaseElement {
         <vscode-tab-header slot="header">模板</vscode-tab-header>
         <vscode-tab-panel>
           <div class="tab-content">
-            <div class="empty">模板编辑功能开发中...</div>
+            <template-list
+              .templates="${this.templates}"
+              .defaultTemplateId="${this.defaultTemplateId}"
+              @save="${this._handleTemplateSave}"
+              @delete="${this._handleTemplateDelete}"
+              @set-default="${this._handleTemplateSetDefault}"
+              @import="${this._handleTemplateImport}"
+              @export="${this._handleTemplateExport}"
+            ></template-list>
           </div>
         </vscode-tab-panel>
       </vscode-tabs>
@@ -175,6 +192,44 @@ export class SettingsPage extends BaseElement {
   private _handleProviderSave(e: CustomEvent<ProviderConfig>) {
     this.dispatchEvent(new CustomEvent('save-provider', {
       detail: e.detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleTemplateSave(e: CustomEvent<PromptTemplate>) {
+    this.dispatchEvent(new CustomEvent('template-save', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleTemplateDelete(e: CustomEvent<PromptTemplate>) {
+    this.dispatchEvent(new CustomEvent('template-delete', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleTemplateSetDefault(e: CustomEvent<string>) {
+    this.dispatchEvent(new CustomEvent('template-set-default', {
+      detail: e.detail,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleTemplateImport() {
+    this.dispatchEvent(new CustomEvent('template-import', {
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleTemplateExport() {
+    this.dispatchEvent(new CustomEvent('template-export', {
       bubbles: true,
       composed: true
     }));

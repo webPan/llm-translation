@@ -15,12 +15,15 @@ require("@vscode-elements/elements/dist/vscode-tab-panel");
 const base_element_1 = require("../common/base-element");
 require("./settings-form");
 require("./provider-card");
+require("./template-list");
 let SettingsPage = class SettingsPage extends base_element_1.BaseElement {
     constructor() {
         super(...arguments);
         this.config = null;
         this.isLoading = true;
         this.error = null;
+        this.templates = [];
+        this.defaultTemplateId = 'default';
     }
     connectedCallback() {
         super.connectedCallback();
@@ -41,6 +44,10 @@ let SettingsPage = class SettingsPage extends base_element_1.BaseElement {
     setConfig(config) {
         this.config = config;
         this.isLoading = false;
+    }
+    setTemplates(templates, defaultId) {
+        this.templates = templates;
+        this.defaultTemplateId = defaultId;
     }
     render() {
         if (this.isLoading) {
@@ -89,7 +96,15 @@ let SettingsPage = class SettingsPage extends base_element_1.BaseElement {
         <vscode-tab-header slot="header">模板</vscode-tab-header>
         <vscode-tab-panel>
           <div class="tab-content">
-            <div class="empty">模板编辑功能开发中...</div>
+            <template-list
+              .templates="${this.templates}"
+              .defaultTemplateId="${this.defaultTemplateId}"
+              @save="${this._handleTemplateSave}"
+              @delete="${this._handleTemplateDelete}"
+              @set-default="${this._handleTemplateSetDefault}"
+              @import="${this._handleTemplateImport}"
+              @export="${this._handleTemplateExport}"
+            ></template-list>
           </div>
         </vscode-tab-panel>
       </vscode-tabs>
@@ -105,6 +120,39 @@ let SettingsPage = class SettingsPage extends base_element_1.BaseElement {
     _handleProviderSave(e) {
         this.dispatchEvent(new CustomEvent('save-provider', {
             detail: e.detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
+    _handleTemplateSave(e) {
+        this.dispatchEvent(new CustomEvent('template-save', {
+            detail: e.detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
+    _handleTemplateDelete(e) {
+        this.dispatchEvent(new CustomEvent('template-delete', {
+            detail: e.detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
+    _handleTemplateSetDefault(e) {
+        this.dispatchEvent(new CustomEvent('template-set-default', {
+            detail: e.detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
+    _handleTemplateImport() {
+        this.dispatchEvent(new CustomEvent('template-import', {
+            bubbles: true,
+            composed: true
+        }));
+    }
+    _handleTemplateExport() {
+        this.dispatchEvent(new CustomEvent('template-export', {
             bubbles: true,
             composed: true
         }));
@@ -182,6 +230,12 @@ __decorate([
 __decorate([
     (0, decorators_js_1.state)()
 ], SettingsPage.prototype, "error", void 0);
+__decorate([
+    (0, decorators_js_1.state)()
+], SettingsPage.prototype, "templates", void 0);
+__decorate([
+    (0, decorators_js_1.state)()
+], SettingsPage.prototype, "defaultTemplateId", void 0);
 exports.SettingsPage = SettingsPage = __decorate([
     (0, decorators_js_1.customElement)('settings-page')
 ], SettingsPage);
