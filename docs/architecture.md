@@ -90,7 +90,11 @@ src/
     │   └── FullPanelController.ts
     ├── components/              # UI 组件 (Lit Web Components)
     │   ├── common/              # 通用组件
+    │   │   └── base-element.ts  # 基础元素类
     │   ├── settings/            # 设置相关组件
+    │   │   ├── settings-page.ts # 设置页面组件
+    │   │   ├── settings-form.ts # 常规设置表单
+    │   │   └── provider-card.ts # 服务商卡片
     │   └── translation/         # 翻译结果组件
     ├── views/                   # View Entry Points (Webview 端)
     │   ├── settings.ts

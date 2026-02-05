@@ -38,6 +38,16 @@ exports.getSettingsPanelManager = getSettingsPanelManager;
 exports.resetSettingsPanelManager = resetSettingsPanelManager;
 const vscode = __importStar(require("vscode"));
 const BasePanelController_1 = require("./BasePanelController");
+/**
+ * 设置面板控制器
+ *
+ * 职责：
+ * - 管理 WebviewPanel 生命周期
+ * - 提供 HTML 入口（引用 views/settings.js）
+ * - 处理来自 Webview 的消息请求
+ *
+ * 注意：不包含业务 UI 代码，UI 逻辑在 views/settings.ts 中
+ */
 class SettingsPanelController extends BasePanelController_1.BasePanelController {
     constructor(panel, extensionUri, extensionContext, providerManager) {
         super(panel, extensionUri, extensionContext);
@@ -51,6 +61,10 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
             retainContextWhenHidden: true,
         };
     }
+    /**
+     * 返回 HTML 骨架，仅引用编译后的 JS
+     * UI 内容由 views/settings.ts 动态创建
+     */
     getHtmlContent() {
         const nonce = this.getNonce();
         const scriptUri = this.getResourceUri('views/settings.js');
@@ -62,187 +76,61 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline';">
   <title>LLM Translation 设置</title>
   <style>
-    :root {
-      --background: var(--vscode-editor-background);
-      --foreground: var(--vscode-editor-foreground);
-      --primary: var(--vscode-button-primaryBackground);
-      --primary-foreground: var(--vscode-button-primaryForeground);
-      --border: var(--vscode-panel-border);
-      --input-background: var(--vscode-input-background);
-      --input-foreground: var(--vscode-input-foreground);
-      --input-border: var(--vscode-input-border);
-    }
-
+    /* 基础重置样式 */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    
     body {
       font-family: var(--vscode-font-family);
       font-size: var(--vscode-font-size);
-      background: var(--background);
-      color: var(--foreground);
-      padding: 16px;
-      overflow: auto;
+      background: var(--vscode-editor-background);
+      color: var(--vscode-editor-foreground);
     }
-
-    .container { max-width: 800px; margin: 0 auto; }
-    .header { margin-bottom: 24px; }
-    .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
-    .header p { color: var(--vscode-descriptionForeground); }
-
-    .tabs {
-      display: flex;
-      gap: 4px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
-    }
-
-    .tab {
-      padding: 8px 16px;
-      background: transparent;
-      border: none;
-      color: var(--foreground);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-    }
-
-    .tab:hover { background: var(--vscode-toolbar-hoverBackground); }
-    .tab.active { border-bottom-color: var(--primary); }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 8px 12px;
-      background: var(--input-background);
-      color: var(--input-foreground);
-      border: 1px solid var(--input-border);
-      border-radius: 2px;
-      font-family: inherit;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: 1px solid var(--primary);
-      outline-offset: -1px;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      background: var(--primary);
-      color: var(--primary-foreground);
-      border: none;
-      border-radius: 2px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .btn:hover { opacity: 0.9; }
-
-    .provider-list { display: flex; flex-direction: column; gap: 12px; }
-    .loading { display: none; padding: 16px; text-align: center; }
-    .loading.active { display: block; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>LLM Translation 设置</h1>
-      <p>配置您的翻译插件</p>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="general">常规</button>
-      <button class="tab" data-tab="providers">服务商</button>
-      <button class="tab" data-tab="templates">模板</button>
-    </div>
-
-    <div class="tab-content active" id="tab-general">
-      <div class="form-group">
-        <label for="default-provider">默认服务商</label>
-        <select id="default-provider">
-          <option value="">选择服务商...</option>
-          <option value="deepseek">DeepSeek</option>
-          <option value="qwen">千问 (Qwen)</option>
-          <option value="kimi">Kimi</option>
-          <option value="glm">智谱 GLM</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="display-mode">显示模式</label>
-        <select id="display-mode">
-          <option value="simple">简单模式</option>
-          <option value="normal">完整模式</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="target-lang">默认目标语言</label>
-        <select id="target-lang">
-          <option value="zh">中文</option>
-          <option value="en">English</option>
-          <option value="ja">日本語</option>
-        </select>
-      </div>
-
-      <button class="btn" id="save-general">保存设置</button>
-    </div>
-
-    <div class="tab-content" id="tab-providers">
-      <div id="provider-list" class="provider-list"></div>
-      <button class="btn" id="add-provider">添加服务商</button>
-    </div>
-
-    <div class="tab-content" id="tab-templates">
-      <div id="template-list"></div>
-      <button class="btn" id="add-template">添加模板</button>
-    </div>
-
-    <div class="loading" id="loading">
-      <p>加载中...</p>
-    </div>
-  </div>
-
+  <settings-page id="app"></settings-page>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
     }
+    /**
+     * 注册消息处理器
+     * 处理来自 Webview 的请求
+     */
     getMessageHandlers() {
         return {
+            // 面板控制
             'panel.focus': () => {
                 this.focus();
             },
             'panel.close': () => {
                 this.dispose();
             },
+            // 通知
             'notification.show': async (message) => {
                 const { message: text, type } = (message.payload || {});
                 if (!text)
                     return;
-                if (type === 'error') {
-                    await vscode.window.showErrorMessage(String(text));
-                }
-                else if (type === 'warning') {
-                    await vscode.window.showWarningMessage(String(text));
-                }
-                else {
-                    await vscode.window.showInformationMessage(String(text));
+                const msgText = String(text);
+                switch (type) {
+                    case 'error':
+                        await vscode.window.showErrorMessage(msgText);
+                        break;
+                    case 'warning':
+                        await vscode.window.showWarningMessage(msgText);
+                        break;
+                    default:
+                        await vscode.window.showInformationMessage(msgText);
                 }
             },
-            // Configuration API for settings webview (request/response)
+            // 配置读取
             'config.get': async (message) => {
                 const { key } = (message.payload || {});
                 const config = vscode.workspace.getConfiguration('llmTranslation');
                 if (key) {
                     return config.get(key);
                 }
+                // 返回常用配置
                 return {
                     defaultProvider: config.get('defaultProvider', 'deepseek'),
                     displayMode: config.get('displayMode', 'simple'),
@@ -250,6 +138,7 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
                     defaultPromptTemplate: config.get('defaultPromptTemplate', 'default'),
                 };
             },
+            // 配置更新
             'config.update': async (message) => {
                 const { key, value, scope = 'user' } = (message.payload || {});
                 const config = vscode.workspace.getConfiguration('llmTranslation');
@@ -259,6 +148,7 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
                 await config.update(key, value, target);
                 return { success: true };
             },
+            // 获取服务商配置
             'config.providers.get': async () => {
                 const providers = this.providerManager.getAvailableProviders();
                 const config = vscode.workspace.getConfiguration('llmTranslation');
@@ -278,6 +168,7 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
                 }
                 return { providers: providersConfig, defaultProvider };
             },
+            // 更新服务商配置
             'config.providers.update': async (message) => {
                 const { providerId, config: newConfig } = (message.payload || {});
                 if (!providerId)
@@ -293,12 +184,13 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
                     await config.update(`providers.${providerId}.baseUrl`, newConfig.baseUrl, true);
                 }
                 if (newConfig?.apiEndpoint !== undefined) {
-                    // Back-compat: settings.js uses apiEndpoint field
+                    // 向后兼容：settings.js 使用 apiEndpoint 字段
                     await config.update(`providers.${providerId}.baseUrl`, newConfig.apiEndpoint, true);
                 }
                 this.providerManager.reloadProviders();
                 return { success: true };
             },
+            // 日志
             'log.info': (message) => {
                 console.log('[SettingsPanel]', message.payload?.message);
             },
@@ -308,7 +200,6 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
         };
     }
     refreshProviders() {
-        // Best-effort: settings view loads via sendRequest; still useful to hint refresh.
         this.sendMessage({
             type: 'config.providers.refresh',
             timestamp: Date.now(),
@@ -320,6 +211,9 @@ class SettingsPanelController extends BasePanelController_1.BasePanelController 
     }
 }
 exports.SettingsPanelController = SettingsPanelController;
+/**
+ * 设置面板管理器（单例）
+ */
 class SettingsPanelManager extends BasePanelController_1.BasePanelManager {
     constructor(providerManager) {
         super();
