@@ -10,6 +10,8 @@ exports.TemplateList = void 0;
 const lit_1 = require("lit");
 const decorators_js_1 = require("lit/decorators.js");
 require("@vscode-elements/elements/dist/vscode-button");
+require("@vscode-elements/elements/dist/vscode-textfield");
+require("@vscode-elements/elements/dist/vscode-textarea");
 const base_element_1 = require("../common/base-element");
 let TemplateList = class TemplateList extends base_element_1.BaseElement {
     constructor() {
@@ -18,10 +20,6 @@ let TemplateList = class TemplateList extends base_element_1.BaseElement {
         this.defaultTemplateId = '';
         this.editingTemplate = null;
         this.showNewForm = false;
-    }
-    setTemplates(templates, defaultId) {
-        this.templates = templates;
-        this.defaultTemplateId = defaultId;
     }
     render() {
         return (0, lit_1.html) `
@@ -80,35 +78,33 @@ let TemplateList = class TemplateList extends base_element_1.BaseElement {
 
         <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
           <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">名称</label>
-          <input
-            type="text"
+          <vscode-textfield
             id="template-name"
             .value="${template.name}"
             placeholder="模板名称"
-            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
-          />
+            style="flex: 1;"
+          ></vscode-textfield>
         </div>
 
         <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
           <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">描述</label>
-          <input
-            type="text"
+          <vscode-textfield
             id="template-desc"
             .value="${template.description}"
             placeholder="简短描述"
-            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
-          />
+            style="flex: 1;"
+          ></vscode-textfield>
         </div>
 
         <div style="margin-bottom: 8px;">
           <label style="display: block; font-size: 12px; color: var(--vscode-descriptionForeground); margin-bottom: 4px;">模板内容</label>
-          <textarea
+          <vscode-textarea
             id="template-content"
             rows="8"
             .value="${template.template}"
             placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
-            style="width: 100%; padding: 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; font-family: var(--vscode-editor-font-family); resize: vertical; border-radius: 2px; box-sizing: border-box;outline:none;"
-          ></textarea>
+            style="width: 100%;"
+          ></vscode-textarea>
         </div>
 
         <div style="display: flex; gap: 8px; justify-content: flex-end;">
@@ -304,10 +300,10 @@ TemplateList.styles = [
     `
 ];
 __decorate([
-    (0, decorators_js_1.state)()
+    (0, decorators_js_1.property)({ type: Array })
 ], TemplateList.prototype, "templates", void 0);
 __decorate([
-    (0, decorators_js_1.state)()
+    (0, decorators_js_1.property)({ type: String })
 ], TemplateList.prototype, "defaultTemplateId", void 0);
 __decorate([
     (0, decorators_js_1.state)()

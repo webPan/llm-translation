@@ -1,6 +1,8 @@
 import { html, css, type CSSResult } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import '@vscode-elements/elements/dist/vscode-button';
+import '@vscode-elements/elements/dist/vscode-textfield';
+import '@vscode-elements/elements/dist/vscode-textarea';
 import { BaseElement } from '../common/base-element';
 
 export interface PromptTemplate {
@@ -126,15 +128,10 @@ export class TemplateList extends BaseElement {
     `
   ];
 
-  @state() private templates: PromptTemplate[] = [];
-  @state() private defaultTemplateId: string = '';
+  @property({ type: Array }) templates: PromptTemplate[] = [];
+  @property({ type: String }) defaultTemplateId: string = '';
   @state() private editingTemplate: PromptTemplate | null = null;
   @state() private showNewForm = false;
-
-  setTemplates(templates: PromptTemplate[], defaultId: string) {
-    this.templates = templates;
-    this.defaultTemplateId = defaultId;
-  }
 
   render() {
     return html`
@@ -198,35 +195,33 @@ export class TemplateList extends BaseElement {
 
         <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
           <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">名称</label>
-          <input
-            type="text"
+          <vscode-textfield
             id="template-name"
             .value="${template.name}"
             placeholder="模板名称"
-            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
-          />
+            style="flex: 1;"
+          ></vscode-textfield>
         </div>
 
         <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
           <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">描述</label>
-          <input
-            type="text"
+          <vscode-textfield
             id="template-desc"
             .value="${template.description}"
             placeholder="简短描述"
-            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
-          />
+            style="flex: 1;"
+          ></vscode-textfield>
         </div>
 
         <div style="margin-bottom: 8px;">
           <label style="display: block; font-size: 12px; color: var(--vscode-descriptionForeground); margin-bottom: 4px;">模板内容</label>
-          <textarea
+          <vscode-textarea
             id="template-content"
             rows="8"
             .value="${template.template}"
             placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
-            style="width: 100%; padding: 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; font-family: var(--vscode-editor-font-family); resize: vertical; border-radius: 2px; box-sizing: border-box;outline:none;"
-          ></textarea>
+            style="width: 100%;"
+          ></vscode-textarea>
         </div>
 
         <div style="display: flex; gap: 8px; justify-content: flex-end;">

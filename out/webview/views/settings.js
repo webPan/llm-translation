@@ -5087,6 +5087,404 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     t3("provider-card")
   ], ProviderCard);
 
+  // node_modules/@vscode-elements/elements/dist/vscode-textarea/vscode-textarea.styles.js
+  var styles8 = [
+    default_styles_default,
+    i`
+    :host {
+      display: inline-block;
+      height: auto;
+      position: relative;
+      width: 320px;
+    }
+
+    :host([cols]) {
+      width: auto;
+    }
+
+    :host([rows]) {
+      height: auto;
+    }
+
+    .shadow {
+      box-shadow: var(--vscode-scrollbar-shadow, #000000) 0 6px 6px -6px inset;
+      display: none;
+      inset: 0 0 auto 0;
+      height: 6px;
+      pointer-events: none;
+      position: absolute;
+      width: 100%;
+    }
+
+    .shadow.visible {
+      display: block;
+    }
+
+    textarea {
+      background-color: var(--vscode-settings-textInputBackground, #313131);
+      border-color: var(--vscode-settings-textInputBorder, transparent);
+      border-radius: 2px;
+      border-style: solid;
+      border-width: 1px;
+      box-sizing: border-box;
+      color: var(--vscode-settings-textInputForeground, #cccccc);
+      display: block;
+      font-family: var(--vscode-font-family, sans-serif);
+      font-size: var(--vscode-font-size, 13px);
+      font-weight: var(--vscode-font-weight, normal);
+      height: 100%;
+      width: 100%;
+    }
+
+    :host([cols]) textarea {
+      width: auto;
+    }
+
+    :host([rows]) textarea {
+      height: auto;
+    }
+
+    :host([invalid]) textarea,
+    :host(:invalid) textarea {
+      background-color: var(--vscode-inputValidation-errorBackground, #5a1d1d);
+      border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+    }
+
+    textarea.monospace {
+      background-color: var(--vscode-editor-background, #1f1f1f);
+      color: var(--vscode-editor-foreground, #cccccc);
+      font-family: var(--vscode-editor-font-family, monospace);
+      font-size: var(--vscode-editor-font-size, 14px);
+      font-weight: var(--vscode-editor-font-weight, normal);
+    }
+
+    .textarea.monospace::placeholder {
+      color: var(
+        --vscode-editor-inlineValuesForeground,
+        rgba(255, 255, 255, 0.5)
+      );
+    }
+
+    textarea.cursor-pointer {
+      cursor: pointer;
+    }
+
+    textarea:focus {
+      border-color: var(--vscode-focusBorder, #0078d4);
+      outline: none;
+    }
+
+    textarea::placeholder {
+      color: var(--vscode-input-placeholderForeground, #989898);
+      opacity: 1;
+    }
+
+    textarea::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+
+    textarea::-webkit-scrollbar {
+      width: 14px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+      background-color: transparent;
+    }
+
+    textarea:hover::-webkit-scrollbar-thumb {
+      background-color: var(
+        --vscode-scrollbarSlider-background,
+        rgba(121, 121, 121, 0.4)
+      );
+    }
+
+    textarea::-webkit-scrollbar-thumb:hover {
+      background-color: var(
+        --vscode-scrollbarSlider-hoverBackground,
+        rgba(100, 100, 100, 0.7)
+      );
+    }
+
+    textarea::-webkit-scrollbar-thumb:active {
+      background-color: var(
+        --vscode-scrollbarSlider-activeBackground,
+        rgba(191, 191, 191, 0.4)
+      );
+    }
+
+    textarea::-webkit-scrollbar-corner {
+      background-color: transparent;
+    }
+
+    textarea::-webkit-resizer {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAACJJREFUeJxjYMAOZuIQZ5j5//9/rJJESczEKYGsG6cEXgAAsEEefMxkua4AAAAASUVORK5CYII=');
+      background-repeat: no-repeat;
+      background-position: right bottom;
+    }
+  `
+  ];
+  var vscode_textarea_styles_default = styles8;
+
+  // node_modules/@vscode-elements/elements/dist/vscode-textarea/vscode-textarea.js
+  var __decorate11 = function(decorators, target, key, desc) {
+    var c5 = arguments.length, r6 = c5 < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d3;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r6 = Reflect.decorate(decorators, target, key, desc);
+    else for (var i7 = decorators.length - 1; i7 >= 0; i7--) if (d3 = decorators[i7]) r6 = (c5 < 3 ? d3(r6) : c5 > 3 ? d3(target, key, r6) : d3(target, key)) || r6;
+    return c5 > 3 && r6 && Object.defineProperty(target, key, r6), r6;
+  };
+  var VscodeTextarea = class VscodeTextarea2 extends VscElement {
+    set value(val) {
+      this._value = val;
+      this._internals.setFormValue(val);
+    }
+    get value() {
+      return this._value;
+    }
+    /**
+     * Getter for the inner textarea element if it needs to be accessed for some reason.
+     */
+    get wrappedElement() {
+      return this._textareaEl;
+    }
+    get form() {
+      return this._internals.form;
+    }
+    /** @internal */
+    get type() {
+      return "textarea";
+    }
+    get validity() {
+      return this._internals.validity;
+    }
+    get validationMessage() {
+      return this._internals.validationMessage;
+    }
+    get willValidate() {
+      return this._internals.willValidate;
+    }
+    /**
+     * Lowercase alias to minLength
+     */
+    set minlength(val) {
+      this.minLength = val;
+    }
+    get minlength() {
+      return this.minLength;
+    }
+    /**
+     * Lowercase alias to maxLength
+     */
+    set maxlength(val) {
+      this.maxLength = val;
+    }
+    get maxlength() {
+      return this.maxLength;
+    }
+    // #endregion
+    constructor() {
+      super();
+      this.autocomplete = void 0;
+      this.autofocus = false;
+      this.defaultValue = "";
+      this.disabled = false;
+      this.invalid = false;
+      this.label = "";
+      this.maxLength = void 0;
+      this.minLength = void 0;
+      this.rows = void 0;
+      this.cols = void 0;
+      this.name = void 0;
+      this.placeholder = void 0;
+      this.readonly = false;
+      this.resize = "none";
+      this.required = false;
+      this.spellcheck = false;
+      this.monospace = false;
+      this._value = "";
+      this._textareaPointerCursor = false;
+      this._shadow = false;
+      this._internals = this.attachInternals();
+    }
+    connectedCallback() {
+      super.connectedCallback();
+      this.updateComplete.then(() => {
+        this._textareaEl.checkValidity();
+        this._setValidityFromInput();
+        this._internals.setFormValue(this._textareaEl.value);
+      });
+    }
+    updated(changedProperties) {
+      const validationRelatedProps = ["maxLength", "minLength", "required"];
+      for (const key of changedProperties.keys()) {
+        if (validationRelatedProps.includes(String(key))) {
+          this.updateComplete.then(() => {
+            this._setValidityFromInput();
+          });
+          break;
+        }
+      }
+    }
+    /** @internal */
+    formResetCallback() {
+      this.value = this.defaultValue;
+    }
+    /** @internal */
+    formStateRestoreCallback(state2, _mode) {
+      this.updateComplete.then(() => {
+        this._value = state2;
+      });
+    }
+    checkValidity() {
+      return this._internals.checkValidity();
+    }
+    reportValidity() {
+      return this._internals.reportValidity();
+    }
+    _setValidityFromInput() {
+      this._internals.setValidity(this._textareaEl.validity, this._textareaEl.validationMessage, this._textareaEl);
+    }
+    _dataChanged() {
+      this._value = this._textareaEl.value;
+      this._internals.setFormValue(this._textareaEl.value);
+    }
+    _handleChange() {
+      this._dataChanged();
+      this._setValidityFromInput();
+      this.dispatchEvent(new Event("change"));
+    }
+    _handleInput() {
+      this._dataChanged();
+      this._setValidityFromInput();
+    }
+    _handleMouseMove(ev) {
+      if (this._textareaEl.clientHeight >= this._textareaEl.scrollHeight) {
+        this._textareaPointerCursor = false;
+        return;
+      }
+      const SCROLLBAR_WIDTH = 14;
+      const BORDER_WIDTH = 1;
+      const br = this._textareaEl.getBoundingClientRect();
+      const x2 = ev.clientX;
+      this._textareaPointerCursor = x2 >= br.left + br.width - SCROLLBAR_WIDTH - BORDER_WIDTH * 2;
+    }
+    _handleScroll() {
+      this._shadow = this._textareaEl.scrollTop > 0;
+    }
+    render() {
+      return b2`
+      <div
+        class=${e7({
+        shadow: true,
+        visible: this._shadow
+      })}
+      ></div>
+      <textarea
+        autocomplete=${o7(this.autocomplete)}
+        ?autofocus=${this.autofocus}
+        ?disabled=${this.disabled}
+        aria-label=${this.label}
+        id="textarea"
+        class=${e7({
+        monospace: this.monospace,
+        "cursor-pointer": this._textareaPointerCursor
+      })}
+        maxlength=${o7(this.maxLength)}
+        minlength=${o7(this.minLength)}
+        rows=${o7(this.rows)}
+        cols=${o7(this.cols)}
+        name=${o7(this.name)}
+        placeholder=${o7(this.placeholder)}
+        ?readonly=${this.readonly}
+        .style=${stylePropertyMap({
+        resize: this.resize
+      })}
+        ?required=${this.required}
+        spellcheck=${this.spellcheck}
+        @change=${this._handleChange}
+        @input=${this._handleInput}
+        @mousemove=${this._handleMouseMove}
+        @scroll=${this._handleScroll}
+        .value=${this._value}
+      ></textarea>
+    `;
+    }
+  };
+  VscodeTextarea.styles = vscode_textarea_styles_default;
+  VscodeTextarea.formAssociated = true;
+  VscodeTextarea.shadowRootOptions = {
+    ...i4.shadowRootOptions,
+    delegatesFocus: true
+  };
+  __decorate11([
+    n4()
+  ], VscodeTextarea.prototype, "autocomplete", void 0);
+  __decorate11([
+    n4({ type: Boolean, reflect: true })
+  ], VscodeTextarea.prototype, "autofocus", void 0);
+  __decorate11([
+    n4({ attribute: "default-value" })
+  ], VscodeTextarea.prototype, "defaultValue", void 0);
+  __decorate11([
+    n4({ type: Boolean, reflect: true })
+  ], VscodeTextarea.prototype, "disabled", void 0);
+  __decorate11([
+    n4({ type: Boolean, reflect: true })
+  ], VscodeTextarea.prototype, "invalid", void 0);
+  __decorate11([
+    n4({ attribute: false })
+  ], VscodeTextarea.prototype, "label", void 0);
+  __decorate11([
+    n4({ type: Number })
+  ], VscodeTextarea.prototype, "maxLength", void 0);
+  __decorate11([
+    n4({ type: Number })
+  ], VscodeTextarea.prototype, "minLength", void 0);
+  __decorate11([
+    n4({ type: Number })
+  ], VscodeTextarea.prototype, "rows", void 0);
+  __decorate11([
+    n4({ type: Number })
+  ], VscodeTextarea.prototype, "cols", void 0);
+  __decorate11([
+    n4()
+  ], VscodeTextarea.prototype, "name", void 0);
+  __decorate11([
+    n4()
+  ], VscodeTextarea.prototype, "placeholder", void 0);
+  __decorate11([
+    n4({ type: Boolean, reflect: true })
+  ], VscodeTextarea.prototype, "readonly", void 0);
+  __decorate11([
+    n4()
+  ], VscodeTextarea.prototype, "resize", void 0);
+  __decorate11([
+    n4({ type: Boolean, reflect: true })
+  ], VscodeTextarea.prototype, "required", void 0);
+  __decorate11([
+    n4({ type: Boolean })
+  ], VscodeTextarea.prototype, "spellcheck", void 0);
+  __decorate11([
+    n4({ type: Boolean, reflect: true })
+  ], VscodeTextarea.prototype, "monospace", void 0);
+  __decorate11([
+    n4()
+  ], VscodeTextarea.prototype, "value", null);
+  __decorate11([
+    e5("#textarea")
+  ], VscodeTextarea.prototype, "_textareaEl", void 0);
+  __decorate11([
+    r5()
+  ], VscodeTextarea.prototype, "_value", void 0);
+  __decorate11([
+    r5()
+  ], VscodeTextarea.prototype, "_textareaPointerCursor", void 0);
+  __decorate11([
+    r5()
+  ], VscodeTextarea.prototype, "_shadow", void 0);
+  VscodeTextarea = __decorate11([
+    customElement("vscode-textarea")
+  ], VscodeTextarea);
+
   // src/webview/components/settings/template-list.ts
   var TemplateList = class extends BaseElement {
     constructor() {
@@ -5095,10 +5493,6 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
       this.defaultTemplateId = "";
       this.editingTemplate = null;
       this.showNewForm = false;
-    }
-    setTemplates(templates, defaultId) {
-      this.templates = templates;
-      this.defaultTemplateId = defaultId;
     }
     render() {
       return b2`
@@ -5155,35 +5549,33 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
 
         <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
           <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">名称</label>
-          <input
-            type="text"
+          <vscode-textfield
             id="template-name"
             .value="${template.name}"
             placeholder="模板名称"
-            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
-          />
+            style="flex: 1;"
+          ></vscode-textfield>
         </div>
 
         <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
           <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">描述</label>
-          <input
-            type="text"
+          <vscode-textfield
             id="template-desc"
             .value="${template.description}"
             placeholder="简短描述"
-            style="flex: 1; padding: 4px 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; border-radius: 2px;"
-          />
+            style="flex: 1;"
+          ></vscode-textfield>
         </div>
 
         <div style="margin-bottom: 8px;">
           <label style="display: block; font-size: 12px; color: var(--vscode-descriptionForeground); margin-bottom: 4px;">模板内容</label>
-          <textarea
+          <vscode-textarea
             id="template-content"
             rows="8"
             .value="${template.template}"
             placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
-            style="width: 100%; padding: 8px; background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border); color: var(--vscode-input-foreground); font-size: 12px; font-family: var(--vscode-editor-font-family); resize: vertical; border-radius: 2px; box-sizing: border-box;"
-          ></textarea>
+            style="width: 100%;"
+          ></vscode-textarea>
         </div>
 
         <div style="display: flex; gap: 8px; justify-content: flex-end;">
@@ -5378,10 +5770,10 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     `
   ];
   __decorateClass([
-    r5()
+    n4({ type: Array })
   ], TemplateList.prototype, "templates", 2);
   __decorateClass([
-    r5()
+    n4({ type: String })
   ], TemplateList.prototype, "defaultTemplateId", 2);
   __decorateClass([
     r5()
