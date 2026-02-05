@@ -22,179 +22,330 @@ export class TemplateList extends BaseElement {
         display: block;
       }
 
-      .toolbar {
+      .container {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        gap: 16px;
+        height: 100%;
+        min-height: 400px;
+      }
+
+      .sidebar {
+        width: 180px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--vscode-panel-border);
+        padding-right: 12px;
+      }
+
+      .sidebar-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--vscode-foreground);
         margin-bottom: 12px;
         padding-bottom: 8px;
         border-bottom: 1px solid var(--vscode-panel-border);
       }
 
-      .toolbar-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--vscode-foreground);
-      }
-
-      .toolbar-actions {
-        display: flex;
-        gap: 8px;
-      }
-
       .template-list {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 4px;
+        flex: 1;
+        overflow-y: auto;
       }
 
       .template-item {
-        border: 1px solid var(--vscode-panel-border);
-        border-radius: 3px;
-        padding: 10px 12px;
-        cursor: pointer;
-        transition: border-color 0.15s;
-      }
-
-      .template-item:hover {
-        border-color: var(--vscode-button-primaryBackground);
-      }
-
-      .template-item.is-default {
-        border-color: var(--vscode-button-primaryBackground);
-        background: var(--vscode-editor-inactiveSelectionBackground);
-      }
-
-      .template-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 4px;
-      }
-
-      .template-name {
-        font-size: 13px;
-        font-weight: 500;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: background-color 0.15s;
+        font-size: 12px;
         color: var(--vscode-foreground);
       }
 
-      .template-badge {
-        font-size: 10px;
-        padding: 2px 4px;
-        border-radius: 2px;
-        background: var(--vscode-button-secondaryBackground);
-        color: var(--vscode-button-secondaryForeground);
+      .template-item:hover {
+        background: var(--vscode-list-hoverBackground);
       }
 
-      .template-item.is-default .template-badge {
-        background: var(--vscode-button-primaryBackground);
-        color: var(--vscode-button-primaryForeground);
+      .template-item.is-selected {
+        background: var(--vscode-list-activeSelectionBackground);
+        color: var(--vscode-list-activeSelectionForeground);
       }
 
-      .template-badge-copy {
+      .default-badge {
         font-size: 10px;
-        padding: 2px 4px;
+        padding: 1px 5px;
         border-radius: 2px;
         background: var(--vscode-button-primaryBackground);
         color: var(--vscode-button-primaryForeground);
-        cursor: pointer;
+        margin-left: 6px;
+      }
+
+      .template-item-actions {
+        display: flex;
+        gap: 4px;
+        opacity: 0;
         transition: opacity 0.15s;
       }
 
-      .template-badge-copy:hover {
-        opacity: 0.8;
+      .template-item:hover .template-item-actions,
+      .template-item.is-selected .template-item-actions {
+        opacity: 1;
       }
 
-      .template-description {
-        font-size: 11px;
-        color: var(--vscode-descriptionForeground);
-        line-height: 1.4;
-      }
 
-      .template-actions {
+
+      .main {
+        flex: 1;
         display: flex;
-        gap: 6px;
-        margin-top: 8px;
+        flex-direction: column;
+        min-width: 0;
       }
 
-      .empty {
-        padding: 40px 16px;
-        text-align: center;
-        color: var(--vscode-descriptionForeground);
+      .toolbar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--vscode-panel-border);
+        gap: 8px;
+      }
+
+      .edit-form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .field-label {
         font-size: 12px;
+        color: var(--vscode-descriptionForeground);
       }
 
-      .variables-hint {
-        margin-top: 12px;
-        padding: 8px;
+      .field-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .field-block .field-label {
+        font-size: 12px;
+        color: var(--vscode-descriptionForeground);
+      }
+
+      .field-block vscode-textfield,
+      .field-block vscode-textarea {
+        width: 100%;
+      }
+
+      .template-content vscode-textarea {
+        min-height: 280px;
+        max-height: 400px;
+      }
+
+      .variables-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
         background: var(--vscode-textBlockQuote-background);
         border-left: 3px solid var(--vscode-button-primaryBackground);
         font-size: 11px;
         color: var(--vscode-descriptionForeground);
       }
 
-      .variables-hint code {
+      .variables-section-title {
+        font-weight: 600;
+        color: var(--vscode-foreground);
+        flex-shrink: 0;
+      }
+
+      .variables-list {
+        display: flex;
+        gap: 8px;
+      }
+
+      .variable-tag {
         font-family: var(--vscode-editor-font-family);
         background: var(--vscode-editor-selectionBackground);
-        padding: 2px 4px;
+        padding: 2px 6px;
         border-radius: 2px;
+        font-size: 11px;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid var(--vscode-panel-border);
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--vscode-descriptionForeground);
+        font-size: 13px;
+        gap: 12px;
       }
     `
   ];
 
   @property({ type: Array }) templates: PromptTemplate[] = [];
   @property({ type: String }) defaultTemplateId: string = '';
+  @state() private selectedTemplateId: string = '';
   @state() private editingTemplate: PromptTemplate | null = null;
   @state() private showNewForm = false;
 
-  render() {
-    return html`
-      <div class="toolbar">
-        <span class="toolbar-title">提示词模板</span>
-        <div class="toolbar-actions">
-          <vscode-button @click="${this._handleImport}" appearance="secondary">导入</vscode-button>
-          <vscode-button @click="${this._handleExport}" appearance="secondary">导出</vscode-button>
-          <vscode-button @click="${this._handleNew}">+ 新建</vscode-button>
-        </div>
-      </div>
+  connectedCallback() {
+    super.connectedCallback();
+    // 默认选中第一个模板
+    if (this.templates.length > 0 && !this.selectedTemplateId) {
+      this.selectedTemplateId = this.templates[0].id;
+    }
+  }
 
-      ${this.showNewForm || this.editingTemplate ? this._renderEditForm() : ''}
-
-      <div class="template-list">
-        ${this.templates.length === 0
-          ? html`<div class="empty">暂无模板</div>`
-          : this.templates.map(template => this._renderTemplateItem(template))
+  updated(changedProperties: Map<string, unknown>) {
+    super.updated(changedProperties);
+    // 当模板列表变化时，如果当前选中的不存在了，选中第一个
+    if (changedProperties.has('templates')) {
+      if (this.templates.length > 0) {
+        const exists = this.templates.find(t => t.id === this.selectedTemplateId);
+        if (!exists) {
+          this.selectedTemplateId = this.templates[0].id;
         }
-      </div>
+      }
+    }
+  }
 
-      <div class="variables-hint">
-        可用变量: <code>{text}</code> <code>{sourceLang}</code> <code>{targetLang}</code>
+  render() {
+    const selectedTemplate = this.templates.find(t => t.id === this.selectedTemplateId);
+
+    return html`
+      <div class="container">
+        ${this._renderSidebar()}
+        ${this._renderMain(selectedTemplate)}
       </div>
     `;
   }
 
-  private _renderTemplateItem(template: PromptTemplate) {
-    const isDefault = template.id === this.defaultTemplateId;
-    const isBuiltin = template.isBuiltin !== false;
-
+  private _renderSidebar() {
     return html`
-      <div class="template-item ${isDefault ? 'is-default' : ''}" @click="${() => this._handleSelect(template)}">
-        <div class="template-header">
-          <span class="template-name">${template.name}</span>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="template-badge">${isDefault ? '默认' : (isBuiltin ? '内置' : '自定义')}</span>
-            ${isBuiltin ? html`
-              <span class="template-badge-copy" @click="${(e: Event) => { e.stopPropagation(); this._handleCopy(template); }}">复制</span>
-            ` : ''}
+      <div class="sidebar">
+        <div class="sidebar-title">提示词模板</div>
+        <div class="template-list">
+          ${this.templates.map(template => {
+            const isSelected = template.id === this.selectedTemplateId;
+            const isDefault = template.id === this.defaultTemplateId;
+            const isBuiltin = template.isBuiltin !== false;
+            return html`
+              <div class="template-item ${isSelected ? 'is-selected' : ''}"
+                   @click="${() => this._handleSelect(template)}">
+                <span class="template-name">${template.name}${isDefault ? html`<span class="default-badge">默认</span>` : ''}</span>
+                ${!isBuiltin ? html`
+                  <span class="template-item-actions">
+                    <span @click="${(e: Event) => { e.stopPropagation(); this._handleDelete(template); }}">删除</span>
+                  </span>
+                ` : ''}
+              </div>
+            `;
+          })}
+        </div>
+      </div>
+    `;
+  }
+
+  private _renderMain(selectedTemplate: PromptTemplate | undefined) {
+    if (this.showNewForm || this.editingTemplate) {
+      return this._renderEditForm();
+    }
+
+    if (!selectedTemplate) {
+      return html`
+        <div class="main">
+          <div class="empty-state">
+            <span>请选择一个模板或创建新模板</span>
           </div>
         </div>
-        <div class="template-description">${template.description}</div>
-        ${!isBuiltin ? html`
-          <div class="template-actions" @click="${(e: Event) => e.stopPropagation()}">
-            <vscode-button @click="${() => this._handleEdit(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">编辑</vscode-button>
-            <vscode-button @click="${() => this._handleDelete(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">删除</vscode-button>
+      `;
+    }
+
+    const isDefault = selectedTemplate.id === this.defaultTemplateId;
+    const isBuiltin = selectedTemplate.isBuiltin !== false;
+
+    return html`
+      <div class="main">
+        <div class="toolbar">
+          <vscode-button @click="${this._handleImport}" appearance="secondary">导入</vscode-button>
+          <vscode-button @click="${this._handleExport}" appearance="secondary">导出</vscode-button>
+          <vscode-button @click="${this._handleNew}" appearance="secondary">+ 新建</vscode-button>
+          ${!isDefault ? html`
+            <vscode-button @click="${() => this._handleSetDefault(selectedTemplate)}" appearance="primary">设为默认</vscode-button>
+          ` : ''}
+        </div>
+
+        <div class="edit-form">
+          <div class="field-block">
+            <span class="field-label">模板名称</span>
+            <vscode-textfield
+              .value="${selectedTemplate.name}"
+              placeholder="模板名称"
+              ?readonly="${isBuiltin}"
+              @change="${(e: Event) => this._handleFieldChange('name', (e.target as HTMLInputElement).value)}"
+            ></vscode-textfield>
           </div>
-        ` : ''}
+
+          <div class="field-block">
+            <span class="field-label">描述</span>
+            <vscode-textfield
+              .value="${selectedTemplate.description}"
+              placeholder="简短描述"
+              ?readonly="${isBuiltin}"
+              @change="${(e: Event) => this._handleFieldChange('description', (e.target as HTMLInputElement).value)}"
+            ></vscode-textfield>
+          </div>
+
+          <div class="field-block template-content">
+            <span class="field-label">模板内容</span>
+            <vscode-textarea
+              .value="${selectedTemplate.template}"
+              placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
+              ?readonly="${isBuiltin}"
+              @change="${(e: Event) => this._handleFieldChange('template', (e.target as HTMLTextAreaElement).value)}"
+            ></vscode-textarea>
+          </div>
+
+          <div class="variables-section">
+            <span class="variables-section-title">可用变量:</span>
+            <div class="variables-list">
+              <span class="variable-tag">{text}</span>
+              <span class="variable-tag">{sourceLang}</span>
+              <span class="variable-tag">{targetLang}</span>
+            </div>
+          </div>
+
+          ${!isBuiltin ? html`
+            <div class="actions">
+              <vscode-button @click="${() => this._handleSaveChanges(selectedTemplate)}" appearance="primary">保存</vscode-button>
+            </div>
+          ` : ''}
+        </div>
       </div>
     `;
   }
@@ -204,58 +355,81 @@ export class TemplateList extends BaseElement {
     const template = isEditing ? this.editingTemplate! : { id: '', name: '', description: '', template: '' };
 
     return html`
-      <div class="card" style="border: 1px solid var(--vscode-panel-border); border-radius: 3px; padding: 12px; margin-bottom: 12px;">
-        <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--vscode-panel-border);">
-          ${isEditing ? '编辑模板' : '新建模板'}
-        </div>
-
-        <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
-          <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">名称</label>
-          <vscode-textfield
-            id="template-name"
-            .value="${template.name}"
-            placeholder="模板名称"
-            style="flex: 1;"
-          ></vscode-textfield>
-        </div>
-
-        <div class="field" style="display: flex; align-items: center; margin-bottom: 8px; gap: 8px;">
-          <label style="font-size: 12px; color: var(--vscode-descriptionForeground); min-width: 70px;">描述</label>
-          <vscode-textfield
-            id="template-desc"
-            .value="${template.description}"
-            placeholder="简短描述"
-            style="flex: 1;"
-          ></vscode-textfield>
-        </div>
-
-        <div style="margin-bottom: 8px;">
-          <label style="display: block; font-size: 12px; color: var(--vscode-descriptionForeground); margin-bottom: 4px;">模板内容</label>
-          <vscode-textarea
-            id="template-content"
-            rows="8"
-            .value="${template.template}"
-            placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
-            style="width: 100%;"
-          ></vscode-textarea>
-        </div>
-
-        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+      <div class="main">
+        <div class="toolbar">
           <vscode-button @click="${this._handleCancelEdit}" appearance="secondary">取消</vscode-button>
-          <vscode-button @click="${this._handleSaveTemplate}">保存</vscode-button>
+        </div>
+
+        <div class="edit-form">
+          <div class="field-block">
+            <span class="field-label">模板名称</span>
+            <vscode-textfield
+              id="new-template-name"
+              .value="${template.name}"
+              placeholder="模板名称"
+            ></vscode-textfield>
+          </div>
+
+          <div class="field-block">
+            <span class="field-label">描述</span>
+            <vscode-textfield
+              id="new-template-desc"
+              .value="${template.description}"
+              placeholder="简短描述"
+            ></vscode-textfield>
+          </div>
+
+          <div class="field-block template-content">
+            <span class="field-label">模板内容</span>
+            <vscode-textarea
+              id="new-template-content"
+              .value="${template.template}"
+              placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
+            ></vscode-textarea>
+          </div>
+
+          <div class="variables-section">
+            <span class="variables-section-title">可用变量:</span>
+            <div class="variables-list">
+              <span class="variable-tag">{text}</span>
+              <span class="variable-tag">{sourceLang}</span>
+              <span class="variable-tag">{targetLang}</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <vscode-button @click="${this._handleSaveTemplate}" appearance="primary">保存</vscode-button>
+          </div>
         </div>
       </div>
     `;
   }
 
   private _handleSelect(template: PromptTemplate) {
-    if (template.id !== this.defaultTemplateId) {
-      this.dispatchEvent(new CustomEvent('set-default', {
-        detail: template.id,
-        bubbles: true,
-        composed: true
-      }));
-    }
+    this.selectedTemplateId = template.id;
+    this.showNewForm = false;
+    this.editingTemplate = null;
+  }
+
+  private _handleFieldChange(field: keyof PromptTemplate, value: string) {
+    const selectedTemplate = this.templates.find(t => t.id === this.selectedTemplateId);
+    if (!selectedTemplate || selectedTemplate.isBuiltin !== false) return;
+
+    const updatedTemplate = { ...selectedTemplate, [field]: value };
+    // 实时保存
+    this.dispatchEvent(new CustomEvent('save', {
+      detail: updatedTemplate,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private _handleSaveChanges(template: PromptTemplate) {
+    this.dispatchEvent(new CustomEvent('save', {
+      detail: template,
+      bubbles: true,
+      composed: true
+    }));
   }
 
   private _handleNew() {
@@ -274,9 +448,9 @@ export class TemplateList extends BaseElement {
   }
 
   private _handleSaveTemplate() {
-    const nameInput = document.getElementById('template-name') as HTMLInputElement;
-    const descInput = document.getElementById('template-desc') as HTMLInputElement;
-    const contentInput = document.getElementById('template-content') as HTMLTextAreaElement;
+    const nameInput = document.getElementById('new-template-name') as HTMLInputElement;
+    const descInput = document.getElementById('new-template-desc') as HTMLInputElement;
+    const contentInput = document.getElementById('new-template-content') as HTMLTextAreaElement;
 
     const template = {
       id: this.editingTemplate?.id || `custom-${Date.now()}`,
@@ -302,6 +476,7 @@ export class TemplateList extends BaseElement {
 
     this.editingTemplate = null;
     this.showNewForm = false;
+    this.selectedTemplateId = template.id;
   }
 
   private _handleDelete(template: PromptTemplate) {
@@ -310,6 +485,9 @@ export class TemplateList extends BaseElement {
       bubbles: true,
       composed: true
     }));
+    if (this.selectedTemplateId === template.id) {
+      this.selectedTemplateId = this.templates.find(t => t.id !== template.id)?.id || '';
+    }
   }
 
   private _handleSetDefault(template: PromptTemplate) {
