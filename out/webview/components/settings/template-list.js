@@ -59,9 +59,6 @@ let TemplateList = class TemplateList extends base_element_1.BaseElement {
           <div class="template-actions" @click="${(e) => e.stopPropagation()}">
             <vscode-button @click="${() => this._handleEdit(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">编辑</vscode-button>
             <vscode-button @click="${() => this._handleDelete(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">删除</vscode-button>
-            ${!isDefault ? (0, lit_1.html) `
-              <vscode-button @click="${() => this._handleSetDefault(template)}" appearance="primary" style="padding: 2px 8px; font-size: 11px;">设为默认</vscode-button>
-            ` : ''}
           </div>
         ` : ''}
       </div>
@@ -115,11 +112,13 @@ let TemplateList = class TemplateList extends base_element_1.BaseElement {
     `;
     }
     _handleSelect(template) {
-        this.dispatchEvent(new CustomEvent('preview', {
-            detail: template,
-            bubbles: true,
-            composed: true
-        }));
+        if (template.id !== this.defaultTemplateId) {
+            this.dispatchEvent(new CustomEvent('set-default', {
+                detail: template.id,
+                bubbles: true,
+                composed: true
+            }));
+        }
     }
     _handleNew() {
         this.editingTemplate = null;

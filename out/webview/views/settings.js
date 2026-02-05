@@ -5530,9 +5530,6 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
           <div class="template-actions" @click="${(e8) => e8.stopPropagation()}">
             <vscode-button @click="${() => this._handleEdit(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">编辑</vscode-button>
             <vscode-button @click="${() => this._handleDelete(template)}" appearance="secondary" style="padding: 2px 8px; font-size: 11px;">删除</vscode-button>
-            ${!isDefault ? b2`
-              <vscode-button @click="${() => this._handleSetDefault(template)}" appearance="primary" style="padding: 2px 8px; font-size: 11px;">设为默认</vscode-button>
-            ` : ""}
           </div>
         ` : ""}
       </div>
@@ -5586,11 +5583,13 @@ To suppress this warning, set window.${CONFIG_KEY} to true`);
     `;
     }
     _handleSelect(template) {
-      this.dispatchEvent(new CustomEvent("preview", {
-        detail: template,
-        bubbles: true,
-        composed: true
-      }));
+      if (template.id !== this.defaultTemplateId) {
+        this.dispatchEvent(new CustomEvent("set-default", {
+          detail: template.id,
+          bubbles: true,
+          composed: true
+        }));
+      }
     }
     _handleNew() {
       this.editingTemplate = null;
