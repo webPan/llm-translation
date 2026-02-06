@@ -5,6 +5,7 @@
  */
 
 import { post, request } from '../core/bridge';
+import { showToast } from '../core/toast';
 import '../components/settings/settings-page';
 import type { SettingsPage } from '../components/settings/settings-page';
 import type { GeneralConfig } from '../components/settings/settings-form';
@@ -47,10 +48,7 @@ async function init() {
     );
   } catch (error) {
     console.error('Failed to load config:', error);
-    post('notification.show', {
-      message: '加载配置失败',
-      type: 'error'
-    });
+    showToast('加载配置失败', { type: 'error' });
   }
 
   // 监听保存事件
@@ -62,10 +60,10 @@ async function init() {
         request('config.update', { key: 'displayMode', value: detail.displayMode }),
         request('config.update', { key: 'defaultTargetLang', value: detail.defaultTargetLang })
       ]);
-      post('notification.show', { message: '保存成功：设置已保存', type: 'info' });
+      showToast('设置已保存', { type: 'success' });
     } catch (error) {
       const message = error instanceof Error ? error.message : '保存失败，请重试';
-      post('notification.show', { message: `保存失败：${message}`, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -80,10 +78,10 @@ async function init() {
           model: detail.model
         }
       });
-      post('notification.show', { message: '保存成功：服务商配置已保存', type: 'info' });
+      showToast('服务商配置已保存', { type: 'success' });
     } catch (error) {
       const message = error instanceof Error ? error.message : '保存失败，请重试';
-      post('notification.show', { message: `保存失败：${message}`, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -92,11 +90,11 @@ async function init() {
     const detail = (e as CustomEvent<PromptTemplate>).detail;
     try {
       await request('config.templates.save', { template: detail });
-      post('notification.show', { message: '模板已保存', type: 'info' });
+      showToast('模板已保存', { type: 'success' });
       refreshTemplates();
     } catch (error) {
       const message = error instanceof Error ? error.message : '保存失败';
-      post('notification.show', { message, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -104,11 +102,11 @@ async function init() {
     const detail = (e as CustomEvent<PromptTemplate>).detail;
     try {
       await request('config.templates.delete', { id: detail.id });
-      post('notification.show', { message: '模板已删除', type: 'info' });
+      showToast('模板已删除', { type: 'success' });
       refreshTemplates();
     } catch (error) {
       const message = error instanceof Error ? error.message : '删除失败';
-      post('notification.show', { message, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -116,11 +114,11 @@ async function init() {
     const templateId = (e as CustomEvent<string>).detail;
     try {
       await request('config.templates.setDefault', { id: templateId });
-      post('notification.show', { message: '默认模板已设置', type: 'info' });
+      showToast('默认模板已设置', { type: 'success' });
       refreshTemplates();
     } catch (error) {
       const message = error instanceof Error ? error.message : '设置失败';
-      post('notification.show', { message, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -130,12 +128,12 @@ async function init() {
       const importJson = prompt('请粘贴模板 JSON：');
       if (importJson) {
         await request('config.templates.import', { json: importJson });
-        post('notification.show', { message: '模板已导入', type: 'info' });
+        showToast('模板已导入', { type: 'success' });
         refreshTemplates();
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : '导入失败';
-      post('notification.show', { message, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -145,10 +143,10 @@ async function init() {
       const json = result?.templates || '[]';
       // 复制到剪贴板
       await navigator.clipboard.writeText(json);
-      post('notification.show', { message: '模板 JSON 已复制到剪贴板', type: 'info' });
+      showToast('模板 JSON 已复制到剪贴板', { type: 'success' });
     } catch (error) {
       const message = error instanceof Error ? error.message : '导出失败';
-      post('notification.show', { message, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 
@@ -162,11 +160,11 @@ async function init() {
         isBuiltin: false
       };
       await request('config.templates.save', { template: newTemplate });
-      post('notification.show', { message: '模板已复制', type: 'info' });
+      showToast('模板已复制', { type: 'success' });
       refreshTemplates();
     } catch (error) {
       const message = error instanceof Error ? error.message : '复制失败';
-      post('notification.show', { message, type: 'error' });
+      showToast(message, { type: 'error' });
     }
   });
 

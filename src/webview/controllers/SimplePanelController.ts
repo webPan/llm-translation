@@ -25,14 +25,16 @@ export class SimplePanelController extends BasePanelController {
   protected getHtmlContent(): string {
     const nonce = this.getNonce();
     const scriptUri = this.getResourceUri('views/simple.js');
+    const codiconUri = this.getResourceUri('views/styles/codicons/codicon.css');
 
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline' ${this.panel.webview.cspSource}; font-src ${this.panel.webview.cspSource};">
   <title>翻译结果</title>
+  <link rel="stylesheet" href="${codiconUri}" id="vscode-codicon-stylesheet">
 </head>
 <body>
   <div id="app">

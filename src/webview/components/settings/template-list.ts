@@ -3,6 +3,7 @@ import { customElement, property, state, query } from 'lit/decorators.js';
 import '@vscode-elements/elements/dist/vscode-button';
 import '@vscode-elements/elements/dist/vscode-textfield';
 import '@vscode-elements/elements/dist/vscode-textarea';
+import '@vscode-elements/elements/dist/vscode-icon';
 import { BaseElement } from '../common/base-element';
 
 export interface PromptTemplate {
@@ -76,13 +77,21 @@ export class TemplateList extends BaseElement {
         color: var(--vscode-list-activeSelectionForeground);
       }
 
-      .default-badge {
-        font-size: 10px;
-        padding: 1px 5px;
-        border-radius: 2px;
-        background: var(--vscode-button-primaryBackground);
-        color: var(--vscode-button-primaryForeground);
+      .template-name {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .default-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         margin-left: 6px;
+        color: var(--vscode-notificationsInfoIcon-foreground, var(--vscode-textLink-foreground));
+      }
+
+      .default-icon vscode-icon {
+        font-size: 12px;
       }
 
       .template-item-actions {
@@ -262,7 +271,7 @@ export class TemplateList extends BaseElement {
             return html`
               <div class="template-item ${isSelected ? 'is-selected' : ''}"
                    @click="${() => this._handleSelect(template)}">
-                <span class="template-name">${template.name}${isDefault ? html`<span class="default-badge">默认</span>` : ''}</span>
+                <span class="template-name">${template.name}${isDefault ? html`<span class="default-icon"><vscode-icon name="sparkle-filled"></vscode-icon></span>` : ''}</span>
                 ${!isBuiltin ? html`
                   <span class="template-item-actions">
                     <span @click="${(e: Event) => { e.stopPropagation(); this._handleDelete(template); }}">删除</span>

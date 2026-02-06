@@ -143,6 +143,33 @@ async function copyStyles() {
 }
 
 /**
+ * 复制 codicon 资源
+ */
+async function copyCodicons() {
+  const codiconDir = path.join(__dirname, 'node_modules', '@vscode', 'codicons', 'dist');
+  const outCodiconDir = path.join(outDir, 'styles', 'codicons');
+
+  if (!fs.existsSync(codiconDir)) {
+    console.log('⚠️  codicons 资源不存在，跳过复制...');
+    return;
+  }
+
+  if (!fs.existsSync(outCodiconDir)) {
+    fs.mkdirSync(outCodiconDir, { recursive: true });
+  }
+
+  const files = fs.readdirSync(codiconDir);
+  for (const file of files) {
+    fs.copyFileSync(
+      path.join(codiconDir, file),
+      path.join(outCodiconDir, file)
+    );
+  }
+
+  console.log('✅ codicon 资源复制成功！');
+}
+
+/**
  * 主函数
  */
 async function main() {
@@ -158,6 +185,7 @@ async function main() {
 
     // 复制样式文件
     await copyStyles();
+    await copyCodicons();
 
     if (!isWatch) {
       console.log('\n✨ 所有 webview 构建完成！');

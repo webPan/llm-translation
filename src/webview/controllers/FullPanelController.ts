@@ -18,20 +18,36 @@ export class FullPanelController extends BasePanelController {
   protected getHtmlContent(): string {
     const nonce = this.getNonce();
     const scriptUri = this.getResourceUri('views/full.js');
+    const codiconUri = this.getResourceUri('views/styles/codicons/codicon.css');
 
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src 'unsafe-inline' ${this.panel.webview.cspSource}; font-src ${this.panel.webview.cspSource};">
   <title>翻译详情</title>
+  <link rel="stylesheet" href="${codiconUri}" id="vscode-codicon-stylesheet">
+  <style>
+    /* 基础重置样式 */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+      background: var(--vscode-editor-background);
+      color: var(--vscode-editor-foreground);
+      display: flex;
+      justify-content: center;
+    }
+
+    full-page {
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div id="app"></div>
-  </div>
-
+  <full-page id="app"></full-page>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;
@@ -68,14 +84,21 @@ export class FullPanelController extends BasePanelController {
         console.error('[FullPanel]', (message.payload as any)?.message);
       },
       'notification.show': async (message) => {
-        const { message: text, type } = (message.payload || {}) as any;
-        if (!text) return;
-        if (type === 'error') {
-          await vscode.window.showErrorMessage(String(text));
-        } else if (type === 'warning') {
-          await vscode.window.showWarningMessage(String(text));
-        } else {
-          await vscode.window.showInformationMessage(String(text));
+        try {
+          const payload = message.payload || {};
+          const text = payload.message || payload.text || '';
+          const type = payload.type || 'info';
+          console.log('[FullPanel] Notification received:', text, type);
+          if (!text) return;
+          if (type === 'error') {
+            await vscode.window.showErrorMessage(String(text));
+          } else if (type === 'warning') {
+            await vscode.window.showWarningMessage(String(text));
+          } else {
+            await vscode.window.showInformationMessage(String(text));
+          }
+        } catch (err) {
+          console.error('[FullPanel] Error showing notification:', err);
         }
       },
     };
