@@ -4,6 +4,7 @@ import { QwenProvider } from './qwen';
 import { KimiProvider } from './kimi';
 import { GlmProvider } from './glm';
 import { LLMProvider, ProviderId, ProviderConfig, TranslateOptions, TranslationResult } from '../types';
+import { getPromptManager } from '../services/promptManager';
 
 export class ProviderManager {
   private providers: Map<ProviderId, LLMProvider> = new Map();
@@ -93,7 +94,16 @@ export class ProviderManager {
       throw new Error('API Key 未配置');
     }
     
-    return provider.translate(text, { ...options, text });
+    // Get the default prompt template ID
+    const promptManager = getPromptManager();
+    const defaultTemplateId = promptManager.getDefaultTemplateId();
+    console.log('[LLM Translation] Using prompt template:', defaultTemplateId);
+    
+    return provider.translate(text, { 
+      ...options, 
+      text,
+      promptTemplate: defaultTemplateId
+    });
   }
   
   reloadProviders(): void {

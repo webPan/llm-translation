@@ -83,6 +83,28 @@ const BUILTIN_TEMPLATES: PromptTemplate[] = [
   "examples": []
 }`,
   },
+  {
+    id: 'abbreviation',
+    name: '中译英简写',
+    description: '中文转合规英文简写，支持小驼峰/全小写，字符≤12，出1-3个方案',
+    template: `你是中文内容英文简写生成专家，核心职责是接收用户输入的中文内容，输出符合规范的英文简写方案。
+
+任务与执行规范
+- 命名格式要求：输出方案仅限小驼峰命名（首字母小写，其余单词首字母大写）或全小写格式。如\`springFestival\`、\`chineseNewYear\`、\`cny\`
+- 简写核心原则：
+  - 翻译为英文时，优先采用常见缩写 / 缩略词，确保保留原文主要字面含义；
+  - 每个方案长度尽量≤12 字符，若简写后仍超 12 字符，需进一步提炼仅保留最核心含义；
+  - 支持生成1-3 个可选方案，若有更短且含义准确的简写（如单词首字母组合），可作为候选项补充。
+
+需要简写的内容
+{text}
+
+输出格式，严格执行
+{
+  "translation": "主要简写结果",
+  "alternatives": ["替代简写1", "替代简写2"]
+}`,
+  },
 ];
 
 export class PromptManager {
@@ -114,7 +136,12 @@ export class PromptManager {
   
   // Get a template by ID
   getTemplate(id: string): PromptTemplate | undefined {
-    return this.getAllTemplates().find(t => t.id === id);
+    const allTemplates = this.getAllTemplates();
+    console.log('[PromptManager] Looking for template:', id);
+    console.log('[PromptManager] Available templates:', allTemplates.map(t => ({ id: t.id, name: t.name })));
+    const found = allTemplates.find(t => t.id === id);
+    console.log('[PromptManager] Found template:', found ? { id: found.id, name: found.name } : 'NOT FOUND');
+    return found;
   }
   
   // Build prompt with variables replaced
@@ -124,8 +151,10 @@ export class PromptManager {
     sourceLang: Language,
     targetLang: Language
   ): string {
+    console.log('[PromptManager] buildPrompt called with templateId:', templateId);
     const template = this.getTemplate(templateId);
     if (!template) {
+      console.warn('[PromptManager] Template not found, falling back to default. Requested:', templateId);
       // Fallback to default template
       return this.buildPrompt('default', text, sourceLang, targetLang);
     }

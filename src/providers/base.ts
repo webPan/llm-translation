@@ -84,6 +84,12 @@ Respond in JSON format:
       targetLang
     );
     
+    // Log the prompt for debugging
+    console.log('[LLM Translation] ====== Prompt Start ======');
+    console.log('[LLM Translation] System: You are a professional translator. Follow the user\'s instructions carefully.');
+    console.log('[LLM Translation] User:\n', userContent);
+    console.log('[LLM Translation] ====== Prompt End ======');
+    
     return [
       {
         role: 'system',
@@ -99,8 +105,16 @@ Respond in JSON format:
   protected async makeRequest(request: ChatCompletionRequest): Promise<any> {
     const startTime = Date.now();
     
+    // Log the full request body
+    console.log('[LLM Translation] ====== API Request Start ======');
+    console.log('[LLM Translation] Provider:', this.name);
+    console.log('[LLM Translation] Model:', this.config.model);
+    console.log('[LLM Translation] Request Body:', JSON.stringify(request, null, 2));
+    console.log('[LLM Translation] ====== API Request End ======');
+    
     try {
       const response = await this.client.post('/chat/completions', request);
+      console.log('[LLM Translation] API Response:', JSON.stringify(response.data, null, 2));
       return {
         data: response.data,
         duration: Date.now() - startTime,

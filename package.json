@@ -276,7 +276,8 @@
             "default",
             "academic",
             "casual",
-            "code"
+            "code",
+            "abbreviation"
           ],
           "description": "Default prompt template"
         },

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ProviderManager } from '../providers';
 import { SimplePanelManager, FullPanelManager } from '../webview/controllers';
+import { getPromptManager } from '../services/promptManager';
 import type { TranslationResult, Language } from '../types';
 
 export function registerTranslateCommands(
@@ -260,11 +261,17 @@ async function translateFull(
       return;
     }
 
+    // Get default prompt template
+    const promptManager = getPromptManager();
+    const defaultTemplateId = promptManager.getDefaultTemplateId();
+    console.log('[LLM Translation] translateFull using prompt template:', defaultTemplateId);
+
     // Execute translation
     const result = await provider.translate(text, {
       text,
       sourceLang: 'auto',
       targetLang,
+      promptTemplate: defaultTemplateId,
     });
 
     // Update panel with result

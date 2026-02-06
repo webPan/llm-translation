@@ -1,5 +1,5 @@
 import { html, css, type CSSResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, state, query } from 'lit/decorators.js';
 import '@vscode-elements/elements/dist/vscode-button';
 import '@vscode-elements/elements/dist/vscode-textfield';
 import '@vscode-elements/elements/dist/vscode-textarea';
@@ -213,6 +213,10 @@ export class TemplateList extends BaseElement {
   @state() private editingTemplate: PromptTemplate | null = null;
   @state() private showNewForm = false;
 
+  @query('#new-template-name') private _nameInput!: HTMLInputElement;
+  @query('#new-template-desc') private _descInput!: HTMLInputElement;
+  @query('#new-template-content') private _contentInput!: HTMLTextAreaElement;
+
   connectedCallback() {
     super.connectedCallback();
     // 默认选中第一个模板
@@ -225,10 +229,11 @@ export class TemplateList extends BaseElement {
     super.updated(changedProperties);
     // 当模板列表变化时，如果当前选中的不存在了，选中第一个
     if (changedProperties.has('templates')) {
-      if (this.templates.length > 0) {
-        const exists = this.templates.find(t => t.id === this.selectedTemplateId);
+      const validTemplates = this.templates.filter(t => t != null);
+      if (validTemplates.length > 0) {
+        const exists = validTemplates.find(t => t!.id === this.selectedTemplateId);
         if (!exists) {
-          this.selectedTemplateId = this.templates[0].id;
+          this.selectedTemplateId = validTemplates[0]!.id;
         }
       }
     }
@@ -250,7 +255,7 @@ export class TemplateList extends BaseElement {
       <div class="sidebar">
         <div class="sidebar-title">提示词模板</div>
         <div class="template-list">
-          ${this.templates.map(template => {
+          ${this.templates.filter(t => t != null).map(template => {
             const isSelected = template.id === this.selectedTemplateId;
             const isDefault = template.id === this.defaultTemplateId;
             const isBuiltin = template.isBuiltin !== false;
@@ -448,15 +453,11 @@ export class TemplateList extends BaseElement {
   }
 
   private _handleSaveTemplate() {
-    const nameInput = document.getElementById('new-template-name') as HTMLInputElement;
-    const descInput = document.getElementById('new-template-desc') as HTMLInputElement;
-    const contentInput = document.getElementById('new-template-content') as HTMLTextAreaElement;
-
     const template = {
       id: this.editingTemplate?.id || `custom-${Date.now()}`,
-      name: nameInput?.value || '',
-      description: descInput?.value || '',
-      template: contentInput?.value || '',
+      name: this._nameInput?.value || '',
+      description: this._descInput?.value || '',
+      template: this._contentInput?.value || '',
       isBuiltin: false
     };
 
