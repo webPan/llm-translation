@@ -39,6 +39,7 @@ export class FullPanelController extends BasePanelController {
       color: var(--vscode-editor-foreground);
       display: flex;
       justify-content: center;
+      padding: 24px;
     }
 
     full-page {
@@ -120,10 +121,10 @@ export class FullPanelController extends BasePanelController {
 
   showLoading(message?: string): void {
     this.sendMessage({
-      type: 'translate.progress',
+      type: 'translate.start',
       id: this.generateMessageId(),
       timestamp: Date.now(),
-      payload: { progress: 0, message: message || '正在翻译...' },
+      payload: { message: message || '正在翻译...' },
     });
   }
 
@@ -164,7 +165,7 @@ export class FullPanelManager extends BasePanelManager<FullPanelController> {
       return this.currentPanel;
     }
 
-    const column = vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One;
+    const column = vscode.ViewColumn.Beside;
 
     const panel = vscode.window.createWebviewPanel(
       'llmTranslation.full',

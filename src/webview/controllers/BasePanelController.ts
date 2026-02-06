@@ -97,6 +97,10 @@ export abstract class BasePanelController {
     this.panel.reveal(this.panel.viewColumn, preserveFocus);
   }
 
+  showInColumn(column: vscode.ViewColumn, preserveFocus?: boolean): void {
+    this.panel.reveal(column, preserveFocus);
+  }
+
   focus(): void {
     this.panel.reveal(undefined, true);
   }

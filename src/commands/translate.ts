@@ -138,10 +138,14 @@ async function translateSimple(
     const panelMode = config.get<string>('simpleMode.panelMode', 'inline');
 
     // Store original text in result for reference
-    if (!result.raw) {
-      result.raw = {};
+    if (!result.raw || typeof result.raw !== 'object') {
+      result.raw = { rawText: result.raw } as any;
     }
     (result.raw as any).originalText = text;
+
+    const viewColumn = panelMode === 'window'
+      ? vscode.ViewColumn.Beside
+      : vscode.ViewColumn.Active;
 
     if (panelMode === 'window') {
       // Show in window mode (webview panel)
@@ -167,7 +171,8 @@ async function translateSimple(
           onClose: () => {
             // Panel closed
           },
-        }
+        },
+        viewColumn
       );
     } else {
       // Show in inline mode (webview panel beside editor)
@@ -187,7 +192,8 @@ async function translateSimple(
           onClose: () => {
             // Panel closed
           },
-        }
+        },
+        viewColumn
       );
     }
 

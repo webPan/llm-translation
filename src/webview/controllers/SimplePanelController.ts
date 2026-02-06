@@ -148,15 +148,20 @@ export class SimplePanelManager extends BasePanelManager<SimplePanelController> 
     SimplePanelManager.instance = undefined;
   }
 
-  createOrShow(extensionUri: vscode.Uri, extensionContext: vscode.ExtensionContext): SimplePanelController {
+  createOrShow(
+    extensionUri: vscode.Uri,
+    extensionContext: vscode.ExtensionContext,
+    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside
+  ): SimplePanelController {
     if (this.currentPanel) {
+      this.currentPanel.showInColumn(viewColumn, true);
       return this.currentPanel;
     }
 
     const panel = vscode.window.createWebviewPanel(
       'llmTranslation.simple',
       '翻译结果',
-      vscode.ViewColumn.Beside,
+      viewColumn,
       {
         enableScripts: true,
         retainContextWhenHidden: false,
@@ -176,9 +181,10 @@ export class SimplePanelManager extends BasePanelManager<SimplePanelController> 
     extensionUri: vscode.Uri,
     extensionContext: vscode.ExtensionContext,
     result: TranslationResult,
-    callbacks: SimplePanelCallbacks = {}
+    callbacks: SimplePanelCallbacks = {},
+    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside
   ): SimplePanelController {
-    const panel = this.createOrShow(extensionUri, extensionContext);
+    const panel = this.createOrShow(extensionUri, extensionContext, viewColumn);
     panel.showResult(result, callbacks);
     return panel;
   }

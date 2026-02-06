@@ -56,9 +56,22 @@ export class FullPage extends BaseElement {
     css`
       :host {
         display: block;
-        max-width: 640px;
-        margin: 16px auto 0;
-        padding: 16px;
+        margin: 24px;
+        padding: 16px 24px;
+      }
+
+      @media (max-width: 720px) {
+        :host {
+          margin: 16px;
+          padding: 12px 16px;
+        }
+      }
+
+      @media (min-width: 1200px) {
+        :host {
+          margin: 32px;
+          padding: 20px 32px;
+        }
       }
 
       /* 头部元信息 */
@@ -269,13 +282,58 @@ export class FullPage extends BaseElement {
         color: var(--vscode-errorForeground);
       }
 
-      /* 加载动画 */
-      @keyframes spin {
-        to { transform: rotate(360deg); }
+      /* 骨架屏 */
+      .skeleton {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 6px 0;
       }
 
-      .loading .state-icon {
-        animation: spin 1s linear infinite;
+      .skeleton-line,
+      .skeleton-block {
+        background: var(--vscode-editor-inactiveSelectionBackground);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .skeleton-line {
+        height: 12px;
+      }
+
+      .skeleton-line.short {
+        width: 38%;
+      }
+
+      .skeleton-line.medium {
+        width: 58%;
+      }
+
+      .skeleton-block {
+        height: 72px;
+      }
+
+      .skeleton-line::after,
+      .skeleton-block::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -40%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0.08),
+          rgba(255, 255, 255, 0)
+        );
+        animation: skeleton-shimmer 1.2s ease-in-out infinite;
+      }
+
+      @keyframes skeleton-shimmer {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(240%); }
       }
 
       /* Collapsible 样式 */
@@ -322,11 +380,12 @@ export class FullPage extends BaseElement {
   render() {
     if (this.state === 'loading') {
       return html`
-        <div class="state-container loading">
-          <div class="state-icon">
-            <vscode-icon name="sync" spin spin-duration="1.2"></vscode-icon>
-          </div>
-          <div class="state-text">${escapeHtml(this.stateMessage || '正在翻译...')}</div>
+        <div class="skeleton" aria-label="${escapeHtml(this.stateMessage || '正在翻译...')}">
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-block"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-block"></div>
+          <div class="skeleton-line"></div>
         </div>
       `;
     }

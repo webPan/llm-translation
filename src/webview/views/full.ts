@@ -19,6 +19,7 @@ function genId(): string {
   return `id_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+
 async function init() {
   const app = document.getElementById('app') as FullPage | null;
   if (!app) {
@@ -71,13 +72,15 @@ async function init() {
         app.result = message.payload?.result || null;
         app.state = 'idle';
         break;
-      case 'translate.progress':
+      case 'translate.start':
         app.state = 'loading';
         app.stateMessage = message.payload?.message || '正在翻译...';
+        app.result = null;
         break;
       case 'translate.error':
         app.state = 'error';
         app.stateMessage = message.payload?.error || '翻译失败';
+        app.result = null;
         break;
     }
   });
