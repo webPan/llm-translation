@@ -5,6 +5,7 @@ import { BasePanelController, BasePanelManager, type BridgeMessage } from './Bas
 export class FullPanelController extends BasePanelController {
   private currentResult: TranslationResult | null = null;
   private currentText = '';
+  private isTranslating = false;
 
   protected getPanelConfig() {
     return {
@@ -110,6 +111,7 @@ export class FullPanelController extends BasePanelController {
     if (originalText) {
       this.currentText = originalText;
     }
+    this.isTranslating = false;
 
     this.sendMessage({
       type: 'translate.result',
@@ -120,6 +122,8 @@ export class FullPanelController extends BasePanelController {
   }
 
   showLoading(message?: string): void {
+    this.isTranslating = true;
+    this.currentResult = null;
     this.sendMessage({
       type: 'translate.start',
       id: this.generateMessageId(),
@@ -138,9 +142,14 @@ export class FullPanelController extends BasePanelController {
   }
 
   protected override onPanelVisible(): void {
-    if (this.currentResult) {
+    if (this.currentResult && !this.isTranslating) {
       this.updateResult(this.currentResult, this.currentText);
     }
+  }
+
+  prepareForTranslation(): void {
+    this.isTranslating = true;
+    this.currentResult = null;
   }
 }
 
@@ -161,6 +170,7 @@ export class FullPanelManager extends BasePanelManager<FullPanelController> {
 
   createOrShow(extensionUri: vscode.Uri, extensionContext: vscode.ExtensionContext): FullPanelController {
     if (this.currentPanel) {
+      this.currentPanel.prepareForTranslation();
       this.currentPanel.show();
       return this.currentPanel;
     }

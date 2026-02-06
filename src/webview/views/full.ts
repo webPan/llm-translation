@@ -19,6 +19,10 @@ function genId(): string {
   return `id_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+const MIN_LOADING_MS = 200;
+let lastLoadingAt = 0;
+let pendingResultTimer: number | null = null;
+
 
 async function init() {
   const app = document.getElementById('app') as FullPage | null;
@@ -69,10 +73,25 @@ async function init() {
 
     switch (message.type) {
       case 'translate.result':
-        app.result = message.payload?.result || null;
-        app.state = 'idle';
+        const nextResult = message.payload?.result || null;
+        if (pendingResultTimer) {
+          window.clearTimeout(pendingResultTimer);
+          pendingResultTimer = null;
+        }
+
+        const elapsed = Date.now() - lastLoadingAt;
+        if (app.state === 'loading' && elapsed < MIN_LOADING_MS) {
+          pendingResultTimer = window.setTimeout(() => {
+            app.result = nextResult;
+            app.state = 'idle';
+          }, MIN_LOADING_MS - elapsed);
+        } else {
+          app.result = nextResult;
+          app.state = 'idle';
+        }
         break;
       case 'translate.start':
+        lastLoadingAt = Date.now();
         app.state = 'loading';
         app.stateMessage = message.payload?.message || '正在翻译...';
         app.result = null;
