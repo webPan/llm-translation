@@ -29,24 +29,12 @@ export function registerConfigCommands(
   disposables.push(
     vscode.commands.registerCommand('llm-translation.switchProvider', async () => {
       const providers = providerManager.getAvailableProviders();
-      const configuredProviders = providers.filter(p => p.configured);
-
-      if (configuredProviders.length === 0) {
-        const action = await vscode.window.showErrorMessage(
-          '没有可用的翻译提供商，请先配置 API Key',
-          '打开设置'
-        );
-        if (action === '打开设置') {
-          vscode.commands.executeCommand('llm-translation.openSettings');
-        }
-        return;
-      }
-
       const items = providers.map(p => ({
         label: p.name,
         description: p.configured ? '已配置' : '未配置',
         detail: p.id,
         picked: false,
+        configured: p.configured,
       }));
 
       const selected = await vscode.window.showQuickPick(items, {
@@ -54,6 +42,27 @@ export function registerConfigCommands(
       });
 
       if (selected) {
+        if (!selected.configured) {
+          const apiKey = await vscode.window.showInputBox({
+            prompt: `请输入 ${selected.label} 的 API Key`,
+            password: true,
+            ignoreFocusOut: true,
+            validateInput: (value) => {
+              if (!value || value.trim().length === 0) {
+                return 'API Key 不能为空';
+              }
+              return null;
+            },
+          });
+
+          if (!apiKey) return;
+
+          const config = vscode.workspace.getConfiguration('llmTranslation');
+          await config.update(`providers.${selected.detail}.apiKey`, apiKey, true);
+          providerManager.reloadProviders();
+          settingsPanelManager.updateProviders();
+        }
+
         const config = vscode.workspace.getConfiguration('llmTranslation');
         await config.update('defaultProvider', selected.detail, true);
         vscode.window.showInformationMessage(`已切换到 ${selected.label}`);
