@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ProviderManager } from '../providers';
 import { SimplePanelManager, FullPanelManager } from '../webview/controllers';
 import { getPromptManager } from '../services/promptManager';
+import { showInlineTranslation } from '../services/inlineResult';
 import type { TranslationResult, Language } from '../types';
 
 export function registerTranslateCommands(
@@ -135,7 +136,7 @@ async function translateSimple(
     console.log('[LLM Translation] Displaying result');
 
     const config = vscode.workspace.getConfiguration('llmTranslation');
-    const panelMode = config.get<string>('simpleMode.panelMode', 'inline');
+    const panelMode = config.get<'inline' | 'hover' | 'window'>('simpleMode.panelMode', 'inline');
 
     // Store original text in result for reference
     if (!result.raw || typeof result.raw !== 'object') {
@@ -143,12 +144,10 @@ async function translateSimple(
     }
     (result.raw as any).originalText = text;
 
-    const viewColumn = panelMode === 'window'
-      ? vscode.ViewColumn.Beside
-      : vscode.ViewColumn.Active;
-
-    if (panelMode === 'window') {
-      // Show in window mode (webview panel)
+    const useOverlay = panelMode === 'hover' || panelMode === 'inline';
+    console.log('[LLM Translation] Using overlay:', panelMode);
+    if (!useOverlay) {
+      // Show in window mode (webview panel on the right)
       simplePanelManager.showResult(
         context.extensionUri,
         context,
@@ -172,51 +171,36 @@ async function translateSimple(
             // Panel closed
           },
         },
-        viewColumn
-      );
-    } else {
-      // Show in inline mode (webview panel beside editor)
-      simplePanelManager.showResult(
-        context.extensionUri,
-        context,
-        result,
-        {
-          onCopy: () => {
-            vscode.env.clipboard.writeText(result!.translation);
-            vscode.window.showInformationMessage('已复制');
-          },
-          onExpand: () => {
-            const panel = fullPanelManager.createOrShow(context.extensionUri, context);
-            panel.updateResult(result!, text);
-          },
-          onClose: () => {
-            // Panel closed
-          },
-        },
-        viewColumn
+        vscode.ViewColumn.Beside
       );
     }
 
-    // Show action buttons in notification (right-bottom corner)
-    const action = await vscode.window.showInformationMessage(
-      `翻译: ${result!.translation}`,
-      '复制',
-      '详情',
-      '替换',
-      '关闭'
-    );
+    if (useOverlay) {
+      showInlineTranslation(editor, selection, result.translation);
+    }
 
-    if (action === '复制') {
-      vscode.env.clipboard.writeText(result!.translation);
-      vscode.window.showInformationMessage('已复制');
-    } else if (action === '详情') {
-      const panel = fullPanelManager.createOrShow(context.extensionUri, context);
-      panel.updateResult(result!, text);
-    } else if (action === '替换') {
-      await editor.edit((editBuilder) => {
-        editBuilder.replace(selection, result!.translation);
-      });
-      vscode.window.showInformationMessage('已替换');
+    if (!useOverlay) {
+      // Show action buttons in notification (right-bottom corner)
+      const action = await vscode.window.showInformationMessage(
+        `翻译: ${result!.translation}`,
+        '复制',
+        '详情',
+        '替换',
+        '关闭'
+      );
+
+      if (action === '复制') {
+        vscode.env.clipboard.writeText(result!.translation);
+        vscode.window.showInformationMessage('已复制');
+      } else if (action === '详情') {
+        const panel = fullPanelManager.createOrShow(context.extensionUri, context);
+        panel.updateResult(result!, text);
+      } else if (action === '替换') {
+        await editor.edit((editBuilder) => {
+          editBuilder.replace(selection, result!.translation);
+        });
+        vscode.window.showInformationMessage('已替换');
+      }
     }
   } else {
     vscode.window.showErrorMessage('翻译失败：未返回结果');

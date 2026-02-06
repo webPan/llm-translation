@@ -47,9 +47,20 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   // Add all disposables to context
+  const inlineCopyDisposable = vscode.commands.registerCommand(
+    'llm-translation.copyInlineResult',
+    async (text?: string) => {
+      const value = typeof text === 'string' ? text : '';
+      if (!value) return;
+      await vscode.env.clipboard.writeText(value);
+      vscode.window.showInformationMessage('已复制');
+    }
+  );
+
   context.subscriptions.push(
     ...translateDisposables,
     ...configDisposables,
+    inlineCopyDisposable,
     {
       dispose: () => {
         resetProviderManager();
