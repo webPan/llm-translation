@@ -19,11 +19,11 @@ export function showInlineTranslation(
 
   decoration = vscode.window.createTextEditorDecorationType({
     after: {
-      contentText: ` ${short}`,
+      contentText: `${short}`,
       color: new vscode.ThemeColor('editorInlayHint.foreground'),
       backgroundColor: new vscode.ThemeColor('editorInlayHint.background'),
-      margin: '0 0 0 8px',
-      textDecoration: 'none; border-radius: 3px; padding: 1px 6px;',
+      margin: '0 0 0 2px',
+      textDecoration: 'none; border-radius: 3px; padding: 2px 4px;',
     },
     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
   });

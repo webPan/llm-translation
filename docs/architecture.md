@@ -261,3 +261,8 @@ onMessage('translate.result', (result) => {
   --border: var(--vscode-panel-border);
 }
 ```
+## 参考资源
+
+- [VS Code Extension API](https://code.visualstudio.com/api)
+- [Extension Guides](https://code.visualstudio.com/api/extension-guides/overview)
+- [Publishing Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
