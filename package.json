@@ -2,7 +2,7 @@
   "name": "llm-translation",
   "displayName": "LLM Translation",
   "description": "AI-powered translation using multiple LLM providers",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "your-publisher",
   "repository": {
     "type": "git",
