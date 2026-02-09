@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允许创建 Release
+    
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. 安装依赖
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. 编译项目
+      - name: Compile
+        run: npm run compile
+
+      # 5. 打包 WebView
+      - name: Build WebView
+        run: npm run build:webview
+
+      # 6. 打包 VS Code 插件
+      - name: Package Extension
+        run: npx vsce package --no-dependencies
+
+      # 7. 获取版本号
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # 8. 创建 GitHub Release 并上传 .vsix 文件
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.get_version.outputs.VERSION }}
+          files: |
+            *.vsix
+          generate_release_notes: true  # 自动生成 Release Notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 9. 输出下载链接（调试用）
+      - name: Output artifacts
+        run: |
+          echo "✅ Release ${{ steps.get_version.outputs.VERSION }} created successfully!"
+          echo "📦 Packaged files:"
+          ls -la *.vsix
