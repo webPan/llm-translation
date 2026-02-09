@@ -332,9 +332,9 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "package": "vsce package",
-    "release": "git add . && git diff --staged --quiet || git commit -m \"chore: prepare release\" && npm version patch && git push origin --tags",
-    "release:minor": "git add . && git diff --staged --quiet || git commit -m \"chore: prepare release\" && npm version minor && git push origin --tags",
-    "release:major": "git add . && git diff --staged --quiet || git commit -m \"chore: prepare release\" && npm version major && git push origin --tags"
+    "release": "npm version patch -m \"chore(release): %s\" && git push origin --tags",
+    "release:minor": "npm version minor -m \"chore(release): %s\" && git push origin --tags",
+    "release:major": "npm version major -m \"chore(release): %s\" && git push origin --tags"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
