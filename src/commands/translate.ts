@@ -107,7 +107,7 @@ async function translateSimple(
     async () => {
       try {
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        const targetLang = forceTargetLang || getAutoTargetLang(text, config.get<Language>('defaultTargetLang', 'zh'));
+        const targetLang = forceTargetLang || getTargetLang(text, config.get<Language>('defaultTargetLang', 'auto'), 'zh');
 
         console.log('[LLM Translation] Translating to:', targetLang);
 
@@ -230,7 +230,7 @@ async function translateFull(
   const panel = fullPanelManager.createOrShow(context.extensionUri, context);
 
   const config = vscode.workspace.getConfiguration('llmTranslation');
-  const targetLang = getAutoTargetLang(text, config.get<Language>('defaultTargetLang', 'zh'));
+  const targetLang = getTargetLang(text, config.get<Language>('defaultTargetLang', 'auto'), 'zh');
 
   // Show loading state
   panel.showLoading('正在翻译...');
@@ -274,6 +274,27 @@ async function translateFull(
   }
 }
 
+/**
+ * 获取目标语言
+ * @param text 要翻译的文本
+ * @param configLang 配置的目标语言（可能是 'auto' 或具体语言）
+ * @param fallback 当无法自动检测时的回退语言
+ * @returns 实际使用的目标语言
+ */
+function getTargetLang(text: string, configLang: Language, fallback: Language): Language {
+  // 如果配置不是 auto，直接使用配置的语言
+  if (configLang !== 'auto') {
+    return configLang;
+  }
+  
+  // 配置为 auto，进行自动检测
+  return getAutoTargetLang(text, fallback);
+}
+
+/**
+ * 自动检测目标语言
+ * 中文 -> 英文，英文 -> 中文，无法判断时使用 fallback
+ */
 function getAutoTargetLang(text: string, fallback: Language): Language {
   const zhCount = (text.match(/[\u4e00-\u9fff]/g) || []).length;
   const enCount = (text.match(/[A-Za-z]/g) || []).length;
@@ -312,7 +333,7 @@ async function translateAndReplace(providerManager: ProviderManager): Promise<vo
     async () => {
       try {
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        const targetLang = config.get<Language>('defaultTargetLang', 'zh');
+        const targetLang = getTargetLang(text, config.get<Language>('defaultTargetLang', 'auto'), 'zh');
 
         const result = await providerManager.translateWithDefault(text, {
           sourceLang: 'auto',

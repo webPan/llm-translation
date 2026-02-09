@@ -132,11 +132,18 @@
         },
         "llmTranslation.defaultTargetLang": {
           "type": "string",
-          "default": "zh",
+          "default": "auto",
           "enum": [
+            "auto",
             "zh",
             "en",
             "ja"
+          ],
+          "enumDescriptions": [
+            "自动检测（中文→英文，英文→中文）",
+            "中文",
+            "English",
+            "日本語"
           ],
           "description": "Default target language"
         },

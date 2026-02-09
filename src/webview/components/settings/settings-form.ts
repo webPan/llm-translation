@@ -112,13 +112,10 @@ export class SettingsForm extends BaseElement {
             .value="${this.editedConfig.defaultTargetLang}"
             @change="${this._handleTargetLangChange}"
           >
+            <vscode-option value="auto">自动检测</vscode-option>
             <vscode-option value="zh">中文</vscode-option>
             <vscode-option value="en">English</vscode-option>
             <vscode-option value="ja">日本語</vscode-option>
-            <vscode-option value="ko">한국어</vscode-option>
-            <vscode-option value="de">Deutsch</vscode-option>
-            <vscode-option value="fr">Français</vscode-option>
-            <vscode-option value="es">Español</vscode-option>
           </vscode-single-select>
         </div>
 

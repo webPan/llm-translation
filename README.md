@@ -117,8 +117,9 @@
   // 默认翻译服务商
   "llmTranslation.defaultProvider": "deepseek",
   
-  // 默认目标语言: zh(中文), en(英文), ja(日文)
-  "llmTranslation.defaultTargetLang": "zh",
+  // 默认目标语言: auto(自动检测), zh(中文), en(英文), ja(日文)
+  // auto 模式：中文自动翻译成英文，英文自动翻译成中文
+  "llmTranslation.defaultTargetLang": "auto",
   
   // 显示模式: simple(简版), normal(完整)
   "llmTranslation.displayMode": "simple"
