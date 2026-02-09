@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run compile:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(move:*)",
+      "Bash(npm run build:webview:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx tsc:*)",
+      "mcp__web-search-prime__webSearchPrime"
+    ]
+  }
+}
