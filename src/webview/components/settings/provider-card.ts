@@ -89,7 +89,7 @@ export class ProviderCard extends BaseElement {
         display: flex;
         justify-content: flex-end;
       }
-    `
+    `,
   ];
 
   @property({ type: Object }) provider!: ProviderConfig;
@@ -143,10 +143,7 @@ export class ProviderCard extends BaseElement {
         </div>
 
         <div class="actions">
-          <vscode-button
-            .disabled="${this.isSaving}"
-            @click="${this._handleSave}"
-          >
+          <vscode-button .disabled="${this.isSaving}" @click="${this._handleSave}">
             保存
           </vscode-button>
         </div>
@@ -179,11 +176,13 @@ export class ProviderCard extends BaseElement {
     if (!this.editedProvider) return;
 
     this.isSaving = true;
-    this.dispatchEvent(new CustomEvent('save', {
-      detail: this.editedProvider,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save', {
+        detail: this.editedProvider,
+        bubbles: true,
+        composed: true,
+      }),
+    );
     this.isSaving = false;
   }
 }

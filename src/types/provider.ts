@@ -17,13 +17,16 @@ export interface ProviderConfig {
 export interface LLMProvider {
   readonly id: ProviderId;
   readonly name: string;
-  translate(text: string, options: {
-    text: string;
-    sourceLang: Language;
-    targetLang: Language;
-    provider?: ProviderId;
-    promptTemplate?: string;
-  }): Promise<{
+  translate(
+    text: string,
+    options: {
+      text: string;
+      sourceLang: Language;
+      targetLang: Language;
+      provider?: ProviderId;
+      promptTemplate?: string;
+    },
+  ): Promise<{
     original: string;
     translation: string;
     pronunciation?: string;

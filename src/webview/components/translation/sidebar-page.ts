@@ -30,7 +30,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
   de: 'Deutsch',
   es: 'Español',
   ru: 'Русский',
-  auto: '自动检测'
+  auto: '自动检测',
 };
 
 function getLanguageName(code: string): string {
@@ -332,8 +332,12 @@ export class SidebarPage extends BaseElement {
       }
 
       @keyframes skeleton-shimmer {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(240%); }
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(240%);
+        }
       }
 
       /* Collapsible 样式 */
@@ -349,8 +353,7 @@ export class SidebarPage extends BaseElement {
         --divider-height: 1px;
         margin: 16px 0;
       }
-
-    `
+    `,
   ];
 
   @property({ type: Object }) result: TranslationResult | null = null;
@@ -358,11 +361,13 @@ export class SidebarPage extends BaseElement {
   @property({ type: String }) stateMessage = '';
 
   private _handleAction(action: string, detail?: any) {
-    this.dispatchEvent(new CustomEvent('action', {
-      detail: { action, ...detail },
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('action', {
+        detail: { action, ...detail },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private async _handleCopyTranslation(text: string) {
@@ -419,25 +424,38 @@ export class SidebarPage extends BaseElement {
     const examples = Array.isArray(r.examples) ? r.examples : [];
 
     // 语言方向
-    const langDirection = meta.sourceLang && meta.targetLang
-      ? `${getLanguageName(meta.sourceLang)} → ${getLanguageName(meta.targetLang)}`
-      : '';
+    const langDirection =
+      meta.sourceLang && meta.targetLang
+        ? `${getLanguageName(meta.sourceLang)} → ${getLanguageName(meta.targetLang)}`
+        : '';
 
     // 服务商和耗时
     const metaItems = [];
-    if (meta.provider) metaItems.push(html`<span class="meta-item" title="翻译服务商">${escapeHtml(meta.provider)}</span>`);
-    if (meta.duration) metaItems.push(html`<span class="meta-item" title="翻译耗时">${escapeHtml(formatDuration(Number(meta.duration)))}</span>`);
+    if (meta.provider)
+      metaItems.push(
+        html`<span class="meta-item" title="翻译服务商">${escapeHtml(meta.provider)}</span>`,
+      );
+    if (meta.duration)
+      metaItems.push(
+        html`<span class="meta-item" title="翻译耗时"
+          >${escapeHtml(formatDuration(Number(meta.duration)))}</span
+        >`,
+      );
 
     return html`
       <!-- 头部元信息 -->
-      ${(langDirection || metaItems.length) ? html`
-        <div class="header">
-          <div class="header-meta">
-            ${langDirection ? html`<span class="lang-direction">${escapeHtml(langDirection)}</span>` : ''}
-            ${metaItems}
-          </div>
-        </div>
-      ` : ''}
+      ${langDirection || metaItems.length
+        ? html`
+            <div class="header">
+              <div class="header-meta">
+                ${langDirection
+                  ? html`<span class="lang-direction">${escapeHtml(langDirection)}</span>`
+                  : ''}
+                ${metaItems}
+              </div>
+            </div>
+          `
+        : ''}
 
       <!-- 原文 -->
       <div class="section">
@@ -452,63 +470,96 @@ export class SidebarPage extends BaseElement {
         <div class="section-title">翻译</div>
         <div class="translation-result">
           ${escapeHtml(String(r.translation || ''))}
-          ${r.pronunciation ? html`<div class="pronunciation">${escapeHtml(r.pronunciation)}</div>` : ''}
-          <div class="copy-icon" @click="${() => this._handleCopyTranslation(r.translation || '')}" title="复制翻译">
+          ${r.pronunciation
+            ? html`<div class="pronunciation">${escapeHtml(r.pronunciation)}</div>`
+            : ''}
+          <div
+            class="copy-icon"
+            @click="${() => this._handleCopyTranslation(r.translation || '')}"
+            title="复制翻译"
+          >
             <vscode-icon name="copy"></vscode-icon>
           </div>
         </div>
-
       </div>
 
       <!-- 其他翻译 -->
-      ${alternatives.length ? html`
-        <vscode-divider></vscode-divider>
-        <div class="section">
-          <div class="section-title">其他翻译</div>
-          <div class="alternatives-list">
-            ${alternatives.map((alt, i) => html`
-              <div class="alternative-item" @click="${() => this._handleAction('selectAlternative', { index: i })}">
-                ${escapeHtml(alt)}
-                <div class="copy-icon" @click="${(e: Event) => { e.stopPropagation(); this._handleCopyTranslation(alt); }}" title="复制">
-                  <vscode-icon name="copy"></vscode-icon>
-                </div>
+      ${alternatives.length
+        ? html`
+            <vscode-divider></vscode-divider>
+            <div class="section">
+              <div class="section-title">其他翻译</div>
+              <div class="alternatives-list">
+                ${alternatives.map(
+                  (alt, i) => html`
+                    <div
+                      class="alternative-item"
+                      @click="${() => this._handleAction('selectAlternative', { index: i })}"
+                    >
+                      ${escapeHtml(alt)}
+                      <div
+                        class="copy-icon"
+                        @click="${(e: Event) => {
+                          e.stopPropagation();
+                          this._handleCopyTranslation(alt);
+                        }}"
+                        title="复制"
+                      >
+                        <vscode-icon name="copy"></vscode-icon>
+                      </div>
+                    </div>
+                  `,
+                )}
               </div>
-            `)}
-          </div>
-        </div>
-      ` : ''}
+            </div>
+          `
+        : ''}
 
       <!-- 词汇解释 -->
-      ${explanations.length ? html`
-        <vscode-divider></vscode-divider>
-        <div class="section">
-          <div class="section-title">词汇解释</div>
-          <div class="vocab-list">
-            ${explanations.map(e => html`
-              <div class="vocab-item">
-                <div class="vocab-word">${escapeHtml(String(e.word || ''))}</div>
-                <div class="vocab-meaning">${escapeHtml(String(e.meaning || e.definition || ''))}</div>
+      ${explanations.length
+        ? html`
+            <vscode-divider></vscode-divider>
+            <div class="section">
+              <div class="section-title">词汇解释</div>
+              <div class="vocab-list">
+                ${explanations.map(
+                  (e) => html`
+                    <div class="vocab-item">
+                      <div class="vocab-word">${escapeHtml(String(e.word || ''))}</div>
+                      <div class="vocab-meaning">
+                        ${escapeHtml(String(e.meaning || e.definition || ''))}
+                      </div>
+                    </div>
+                  `,
+                )}
               </div>
-            `)}
-          </div>
-        </div>
-      ` : ''}
+            </div>
+          `
+        : ''}
 
       <!-- 例句 -->
-      ${examples.length ? html`
-        <vscode-divider></vscode-divider>
-        <div class="section">
-          <div class="section-title">例句</div>
-          <div class="example-list">
-            ${examples.map(ex => html`
-              <div class="example-item">
-                <div class="example-source">${escapeHtml(String(ex.original || ex.source || ''))}</div>
-                <div class="example-target">${escapeHtml(String(ex.translation || ex.target || ''))}</div>
+      ${examples.length
+        ? html`
+            <vscode-divider></vscode-divider>
+            <div class="section">
+              <div class="section-title">例句</div>
+              <div class="example-list">
+                ${examples.map(
+                  (ex) => html`
+                    <div class="example-item">
+                      <div class="example-source">
+                        ${escapeHtml(String(ex.original || ex.source || ''))}
+                      </div>
+                      <div class="example-target">
+                        ${escapeHtml(String(ex.translation || ex.target || ''))}
+                      </div>
+                    </div>
+                  `,
+                )}
               </div>
-            `)}
-          </div>
-        </div>
-      ` : ''}
+            </div>
+          `
+        : ''}
     `;
   }
 }

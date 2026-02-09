@@ -62,7 +62,7 @@ export class SettingsForm extends BaseElement {
         display: flex;
         justify-content: flex-end;
       }
-    `
+    `,
   ];
 
   @property({ type: Object }) config!: GeneralConfig;
@@ -120,10 +120,7 @@ export class SettingsForm extends BaseElement {
         </div>
 
         <div class="actions">
-          <vscode-button
-            .disabled="${this.isSaving}"
-            @click="${this._handleSave}"
-          >
+          <vscode-button .disabled="${this.isSaving}" @click="${this._handleSave}">
             保存
           </vscode-button>
         </div>
@@ -156,11 +153,13 @@ export class SettingsForm extends BaseElement {
     if (!this.editedConfig) return;
 
     this.isSaving = true;
-    this.dispatchEvent(new CustomEvent('save', {
-      detail: this.editedConfig,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save', {
+        detail: this.editedConfig,
+        bubbles: true,
+        composed: true,
+      }),
+    );
     this.isSaving = false;
   }
 }

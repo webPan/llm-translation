@@ -23,7 +23,6 @@ const MIN_LOADING_MS = 200;
 let lastLoadingAt = 0;
 let pendingResultTimer: number | null = null;
 
-
 async function init() {
   const app = document.getElementById('app') as SidebarPage | null;
   if (!app) {
@@ -72,7 +71,7 @@ async function init() {
     if (!message || !message.type) return;
 
     switch (message.type) {
-      case 'translate.result':
+      case 'translate.result': {
         const nextResult = message.payload?.result || null;
         if (pendingResultTimer) {
           window.clearTimeout(pendingResultTimer);
@@ -90,6 +89,7 @@ async function init() {
           app.state = 'idle';
         }
         break;
+      }
       case 'translate.start':
         lastLoadingAt = Date.now();
         app.state = 'loading';

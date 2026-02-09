@@ -68,7 +68,9 @@ export class SettingsPage extends BaseElement {
         margin-bottom: 0;
       }
 
-      .loading, .error, .empty {
+      .loading,
+      .error,
+      .empty {
         padding: 40px 16px;
         text-align: center;
         color: var(--vscode-descriptionForeground);
@@ -78,7 +80,7 @@ export class SettingsPage extends BaseElement {
       .error {
         color: var(--vscode-errorForeground);
       }
-    `
+    `,
   ];
 
   @state() private config: AppConfig | null = null;
@@ -94,11 +96,14 @@ export class SettingsPage extends BaseElement {
 
   private async _loadConfig() {
     try {
-      this.dispatchEvent(new CustomEvent('load-config', {
-        bubbles: true,
-        composed: true
-      }));
+      this.dispatchEvent(
+        new CustomEvent('load-config', {
+          bubbles: true,
+          composed: true,
+        }),
+      );
     } catch (err) {
+      console.log('Error loading config:', err);
       this.error = '加载配置失败';
       this.isLoading = false;
     }
@@ -152,13 +157,14 @@ export class SettingsPage extends BaseElement {
             <div class="provider-list">
               ${providers.length === 0
                 ? html`<div class="empty">暂无配置的服务商</div>`
-                : providers.map(provider => html`
-                    <provider-card
-                      .provider="${provider}"
-                      @save="${this._handleProviderSave}"
-                    ></provider-card>
-                  `)
-              }
+                : providers.map(
+                    (provider) => html`
+                      <provider-card
+                        .provider="${provider}"
+                        @save="${this._handleProviderSave}"
+                      ></provider-card>
+                    `,
+                  )}
             </div>
           </div>
         </vscode-tab-panel>
@@ -183,65 +189,81 @@ export class SettingsPage extends BaseElement {
   }
 
   private _handleGeneralSave(e: CustomEvent<GeneralConfig>) {
-    this.dispatchEvent(new CustomEvent('save-general', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save-general', {
+        detail: e.detail,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleProviderSave(e: CustomEvent<ProviderConfig>) {
-    this.dispatchEvent(new CustomEvent('save-provider', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save-provider', {
+        detail: e.detail,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleTemplateSave(e: CustomEvent<PromptTemplate>) {
-    this.dispatchEvent(new CustomEvent('template-save', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('template-save', {
+        detail: e.detail,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleTemplateDelete(e: CustomEvent<PromptTemplate>) {
-    this.dispatchEvent(new CustomEvent('template-delete', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('template-delete', {
+        detail: e.detail,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleTemplateSetDefault(e: CustomEvent<string>) {
-    this.dispatchEvent(new CustomEvent('template-set-default', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('template-set-default', {
+        detail: e.detail,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleTemplateImport() {
-    this.dispatchEvent(new CustomEvent('template-import', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('template-import', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleTemplateExport() {
-    this.dispatchEvent(new CustomEvent('template-export', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('template-export', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleTemplateCopy(e: CustomEvent<PromptTemplate>) {
-    this.dispatchEvent(new CustomEvent('template-copy', {
-      detail: e.detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('template-copy', {
+        detail: e.detail,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 }
 

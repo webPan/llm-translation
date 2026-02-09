@@ -6,12 +6,12 @@
 
 ## 2. 技术栈
 
-| 层级 | 技术 |
-|------|------|
-| Extension | VS Code Extension API + TypeScript |
+| 层级       | 技术                                             |
+| ---------- | ------------------------------------------------ |
+| Extension  | VS Code Extension API + TypeScript               |
 | Webview UI | Lit (Web Components) + @vscode-elements/elements |
-| 样式 | VS Code CSS Variables |
-| 构建 | esbuild / tsc |
+| 样式       | VS Code CSS Variables                            |
+| 构建       | esbuild / tsc                                    |
 
 ## 3. 系统架构（三层设计）
 
@@ -111,12 +111,14 @@ src/
 **运行环境**: Node.js (Extension Host)
 
 **职责**:
+
 - 创建/管理 `WebviewPanel` 生命周期
 - 返回 HTML 骨架（引用 `views/*.js`）
 - 注册消息处理器
 - 调用 VS Code API
 
 **约束**:
+
 - ❌ 不包含业务 UI 代码
 - ❌ 不内联 HTML/CSS
 
@@ -143,12 +145,14 @@ protected getHtmlContent(): string {
 **运行环境**: 浏览器 (Webview)
 
 **职责**:
+
 - 使用 Lit 定义 Web Components
 - 封装业务逻辑和样式
 - 通过 `properties` 接收数据
 - 通过 `events` 与父组件通信
 
 **规范**:
+
 - 继承 `LitElement`
 - 使用 `@vscode-elements/elements` 作为基础组件
 - 样式使用 VS Code CSS Variables
@@ -158,12 +162,10 @@ protected getHtmlContent(): string {
 @customElement('provider-card')
 export class ProviderCard extends LitElement {
   @property({ type: Object }) provider!: ProviderConfig;
-  
+
   render() {
     return html`
-      <vscode-textfield 
-        .value="${this.provider.apiKey}"
-        @change="${this._handleChange}">
+      <vscode-textfield .value="${this.provider.apiKey}" @change="${this._handleChange}">
       </vscode-textfield>
     `;
   }
@@ -175,11 +177,13 @@ export class ProviderCard extends LitElement {
 **运行环境**: 浏览器 (Webview)
 
 **职责**:
+
 - 导入并注册 Web Components
 - 初始化页面布局
 - 通过 `bridge.ts` 与 Controller 通信
 
 **约束**:
+
 - ❌ 不直接调用 VS Code API
 
 ```typescript
@@ -209,13 +213,13 @@ interface BridgeMessage<TPayload = any, TResponse = any> {
 
 ### 6.2 常用消息类型
 
-| 类型 | 方向 | 说明 |
-|------|------|------|
-| `config.get` | View → Controller | 获取配置 |
-| `config.update` | View → Controller | 更新配置 |
+| 类型                | 方向              | 说明     |
+| ------------------- | ----------------- | -------- |
+| `config.get`        | View → Controller | 获取配置 |
+| `config.update`     | View → Controller | 更新配置 |
 | `notification.show` | View → Controller | 显示通知 |
-| `translate.result` | Controller → View | 翻译结果 |
-| `action.copy` | View → Controller | 复制操作 |
+| `translate.result`  | Controller → View | 翻译结果 |
+| `action.copy`       | View → Controller | 复制操作 |
 
 ### 6.3 Bridge API
 
@@ -236,11 +240,11 @@ onMessage('translate.result', (result) => {
 
 ### 7.1 命名规范
 
-| 层级 | 文件命名 | 类/标签命名 |
-|------|----------|-------------|
-| Controller | `XxxPanelController.ts` | `XxxPanelController` |
-| Component | `xxx-xxx.ts` | `XxxXxx` / `<xxx-xxx>` |
-| View | `xxx.ts` | - |
+| 层级       | 文件命名                | 类/标签命名            |
+| ---------- | ----------------------- | ---------------------- |
+| Controller | `XxxPanelController.ts` | `XxxPanelController`   |
+| Component  | `xxx-xxx.ts`            | `XxxXxx` / `<xxx-xxx>` |
+| View       | `xxx.ts`                | -                      |
 
 ### 7.2 创建新组件流程
 
@@ -261,6 +265,7 @@ onMessage('translate.result', (result) => {
   --border: var(--vscode-panel-border);
 }
 ```
+
 ## 参考资源
 
 - [VS Code Extension API](https://code.visualstudio.com/api)

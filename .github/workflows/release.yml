@@ -4,14 +4,14 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch: # 允许手动触发
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # 允许创建 Release
-    
+      contents: write # 允许创建 Release
+
     steps:
       # 1. 检出代码
       - name: Checkout code
@@ -52,7 +52,7 @@ jobs:
           name: ${{ steps.get_version.outputs.VERSION }}
           files: |
             *.vsix
-          generate_release_notes: true  # 自动生成 Release Notes
+          generate_release_notes: true # 自动生成 Release Notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

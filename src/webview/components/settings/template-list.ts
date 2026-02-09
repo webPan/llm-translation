@@ -106,8 +106,6 @@ export class TemplateList extends BaseElement {
         opacity: 1;
       }
 
-
-
       .main {
         flex: 1;
         display: flex;
@@ -213,7 +211,7 @@ export class TemplateList extends BaseElement {
         font-size: 13px;
         gap: 12px;
       }
-    `
+    `,
   ];
 
   @property({ type: Array }) templates: PromptTemplate[] = [];
@@ -238,9 +236,9 @@ export class TemplateList extends BaseElement {
     super.updated(changedProperties);
     // 当模板列表变化时，如果当前选中的不存在了，选中第一个
     if (changedProperties.has('templates')) {
-      const validTemplates = this.templates.filter(t => t != null);
+      const validTemplates = this.templates.filter((t) => t != null);
       if (validTemplates.length > 0) {
-        const exists = validTemplates.find(t => t!.id === this.selectedTemplateId);
+        const exists = validTemplates.find((t) => t!.id === this.selectedTemplateId);
         if (!exists) {
           this.selectedTemplateId = validTemplates[0]!.id;
         }
@@ -249,13 +247,10 @@ export class TemplateList extends BaseElement {
   }
 
   render() {
-    const selectedTemplate = this.templates.find(t => t.id === this.selectedTemplateId);
+    const selectedTemplate = this.templates.find((t) => t.id === this.selectedTemplateId);
 
     return html`
-      <div class="container">
-        ${this._renderSidebar()}
-        ${this._renderMain(selectedTemplate)}
-      </div>
+      <div class="container">${this._renderSidebar()} ${this._renderMain(selectedTemplate)}</div>
     `;
   }
 
@@ -263,22 +258,40 @@ export class TemplateList extends BaseElement {
     return html`
       <div class="sidebar">
         <div class="template-list">
-          ${this.templates.filter(t => t != null).map(template => {
-            const isSelected = template.id === this.selectedTemplateId;
-            const isDefault = template.id === this.defaultTemplateId;
-            const isBuiltin = template.isBuiltin !== false;
-            return html`
-              <div class="template-item ${isSelected ? 'is-selected' : ''}"
-                   @click="${() => this._handleSelect(template)}">
-                <span class="template-name">${template.name}${isDefault ? html`<span class="default-icon"><vscode-icon name="sparkle-filled"></vscode-icon></span>` : ''}</span>
-                ${!isBuiltin ? html`
-                  <span class="template-item-actions">
-                    <span @click="${(e: Event) => { e.stopPropagation(); this._handleDelete(template); }}">删除</span>
-                  </span>
-                ` : ''}
-              </div>
-            `;
-          })}
+          ${this.templates
+            .filter((t) => t != null)
+            .map((template) => {
+              const isSelected = template.id === this.selectedTemplateId;
+              const isDefault = template.id === this.defaultTemplateId;
+              const isBuiltin = template.isBuiltin !== false;
+              return html`
+                <div
+                  class="template-item ${isSelected ? 'is-selected' : ''}"
+                  @click="${() => this._handleSelect(template)}"
+                >
+                  <span class="template-name"
+                    >${template.name}${isDefault
+                      ? html`<span class="default-icon"
+                          ><vscode-icon name="sparkle-filled"></vscode-icon
+                        ></span>`
+                      : ''}</span
+                  >
+                  ${!isBuiltin
+                    ? html`
+                        <span class="template-item-actions">
+                          <span
+                            @click="${(e: Event) => {
+                              e.stopPropagation();
+                              this._handleDelete(template);
+                            }}"
+                            >删除</span
+                          >
+                        </span>
+                      `
+                    : ''}
+                </div>
+              `;
+            })}
         </div>
       </div>
     `;
@@ -308,9 +321,15 @@ export class TemplateList extends BaseElement {
           <vscode-button @click="${this._handleImport}" appearance="secondary">导入</vscode-button>
           <vscode-button @click="${this._handleExport}" appearance="secondary">导出</vscode-button>
           <vscode-button @click="${this._handleNew}" appearance="secondary">+ 新建</vscode-button>
-          ${!isDefault ? html`
-            <vscode-button @click="${() => this._handleSetDefault(selectedTemplate)}" appearance="primary">设为默认</vscode-button>
-          ` : ''}
+          ${!isDefault
+            ? html`
+                <vscode-button
+                  @click="${() => this._handleSetDefault(selectedTemplate)}"
+                  appearance="primary"
+                  >设为默认</vscode-button
+                >
+              `
+            : ''}
         </div>
 
         <div class="edit-form">
@@ -320,7 +339,8 @@ export class TemplateList extends BaseElement {
               .value="${selectedTemplate.name}"
               placeholder="模板名称"
               ?readonly="${isBuiltin}"
-              @change="${(e: Event) => this._handleFieldChange('name', (e.target as HTMLInputElement).value)}"
+              @change="${(e: Event) =>
+                this._handleFieldChange('name', (e.target as HTMLInputElement).value)}"
             ></vscode-textfield>
           </div>
 
@@ -330,7 +350,8 @@ export class TemplateList extends BaseElement {
               .value="${selectedTemplate.description}"
               placeholder="简短描述"
               ?readonly="${isBuiltin}"
-              @change="${(e: Event) => this._handleFieldChange('description', (e.target as HTMLInputElement).value)}"
+              @change="${(e: Event) =>
+                this._handleFieldChange('description', (e.target as HTMLInputElement).value)}"
             ></vscode-textfield>
           </div>
 
@@ -340,7 +361,8 @@ export class TemplateList extends BaseElement {
               .value="${selectedTemplate.template}"
               placeholder="使用 {text} {sourceLang} {targetLang} 作为变量"
               ?readonly="${isBuiltin}"
-              @change="${(e: Event) => this._handleFieldChange('template', (e.target as HTMLTextAreaElement).value)}"
+              @change="${(e: Event) =>
+                this._handleFieldChange('template', (e.target as HTMLTextAreaElement).value)}"
             ></vscode-textarea>
           </div>
 
@@ -353,11 +375,17 @@ export class TemplateList extends BaseElement {
             </div>
           </div>
 
-          ${!isBuiltin ? html`
-            <div class="actions">
-              <vscode-button @click="${() => this._handleSaveChanges(selectedTemplate)}" appearance="primary">保存</vscode-button>
-            </div>
-          ` : ''}
+          ${!isBuiltin
+            ? html`
+                <div class="actions">
+                  <vscode-button
+                    @click="${() => this._handleSaveChanges(selectedTemplate)}"
+                    appearance="primary"
+                    >保存</vscode-button
+                  >
+                </div>
+              `
+            : ''}
         </div>
       </div>
     `;
@@ -365,12 +393,16 @@ export class TemplateList extends BaseElement {
 
   private _renderEditForm() {
     const isEditing = this.editingTemplate !== null;
-    const template = isEditing ? this.editingTemplate! : { id: '', name: '', description: '', template: '' };
+    const template = isEditing
+      ? this.editingTemplate!
+      : { id: '', name: '', description: '', template: '' };
 
     return html`
       <div class="main">
         <div class="toolbar">
-          <vscode-button @click="${this._handleCancelEdit}" appearance="secondary">取消</vscode-button>
+          <vscode-button @click="${this._handleCancelEdit}" appearance="secondary"
+            >取消</vscode-button
+          >
         </div>
 
         <div class="edit-form">
@@ -411,7 +443,9 @@ export class TemplateList extends BaseElement {
           </div>
 
           <div class="actions">
-            <vscode-button @click="${this._handleSaveTemplate}" appearance="primary">保存</vscode-button>
+            <vscode-button @click="${this._handleSaveTemplate}" appearance="primary"
+              >保存</vscode-button
+            >
           </div>
         </div>
       </div>
@@ -425,24 +459,28 @@ export class TemplateList extends BaseElement {
   }
 
   private _handleFieldChange(field: keyof PromptTemplate, value: string) {
-    const selectedTemplate = this.templates.find(t => t.id === this.selectedTemplateId);
+    const selectedTemplate = this.templates.find((t) => t.id === this.selectedTemplateId);
     if (!selectedTemplate || selectedTemplate.isBuiltin !== false) return;
 
     const updatedTemplate = { ...selectedTemplate, [field]: value };
     // 实时保存
-    this.dispatchEvent(new CustomEvent('save', {
-      detail: updatedTemplate,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save', {
+        detail: updatedTemplate,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleSaveChanges(template: PromptTemplate) {
-    this.dispatchEvent(new CustomEvent('save', {
-      detail: template,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save', {
+        detail: template,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleNew() {
@@ -466,22 +504,26 @@ export class TemplateList extends BaseElement {
       name: this._nameInput?.value || '',
       description: this._descInput?.value || '',
       template: this._contentInput?.value || '',
-      isBuiltin: false
+      isBuiltin: false,
     };
 
     if (!template.name || !template.template) {
-      this.dispatchEvent(new CustomEvent('error', {
-        detail: '请填写模板名称和内容',
-        bubbles: true
-      }));
+      this.dispatchEvent(
+        new CustomEvent('error', {
+          detail: '请填写模板名称和内容',
+          bubbles: true,
+        }),
+      );
       return;
     }
 
-    this.dispatchEvent(new CustomEvent('save', {
-      detail: template,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('save', {
+        detail: template,
+        bubbles: true,
+        composed: true,
+      }),
+    );
 
     this.editingTemplate = null;
     this.showNewForm = false;
@@ -489,44 +531,54 @@ export class TemplateList extends BaseElement {
   }
 
   private _handleDelete(template: PromptTemplate) {
-    this.dispatchEvent(new CustomEvent('delete', {
-      detail: template,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('delete', {
+        detail: template,
+        bubbles: true,
+        composed: true,
+      }),
+    );
     if (this.selectedTemplateId === template.id) {
-      this.selectedTemplateId = this.templates.find(t => t.id !== template.id)?.id || '';
+      this.selectedTemplateId = this.templates.find((t) => t.id !== template.id)?.id || '';
     }
   }
 
   private _handleSetDefault(template: PromptTemplate) {
-    this.dispatchEvent(new CustomEvent('set-default', {
-      detail: template.id,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('set-default', {
+        detail: template.id,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleCopy(template: PromptTemplate) {
-    this.dispatchEvent(new CustomEvent('copy', {
-      detail: template,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('copy', {
+        detail: template,
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleImport() {
-    this.dispatchEvent(new CustomEvent('import', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('import', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _handleExport() {
-    this.dispatchEvent(new CustomEvent('export', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('export', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 }
 

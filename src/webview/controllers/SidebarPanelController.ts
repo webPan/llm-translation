@@ -55,7 +55,10 @@ export class SidebarPanelController extends BasePanelController {
 </html>`;
   }
 
-  protected getMessageHandlers(): Record<string, (message: BridgeMessage) => unknown | Promise<unknown>> {
+  protected getMessageHandlers(): Record<
+    string,
+    (message: BridgeMessage) => unknown | Promise<unknown>
+  > {
     return {
       'panel.focus': () => {
         this.focus();
@@ -168,7 +171,10 @@ export class SidebarPanelManager extends BasePanelManager<SidebarPanelController
     SidebarPanelManager.instance = undefined;
   }
 
-  createOrShow(extensionUri: vscode.Uri, extensionContext: vscode.ExtensionContext): SidebarPanelController {
+  createOrShow(
+    extensionUri: vscode.Uri,
+    extensionContext: vscode.ExtensionContext,
+  ): SidebarPanelController {
     if (this.currentPanel) {
       this.currentPanel.prepareForTranslation();
       this.currentPanel.show();
@@ -177,19 +183,14 @@ export class SidebarPanelManager extends BasePanelManager<SidebarPanelController
 
     const column = vscode.ViewColumn.Beside;
 
-    const panel = vscode.window.createWebviewPanel(
-      'llmTranslation.sidebar',
-      '翻译详情',
-      column,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, 'out'),
-          vscode.Uri.joinPath(extensionUri, 'node_modules'),
-        ],
-      }
-    );
+    const panel = vscode.window.createWebviewPanel('llmTranslation.sidebar', '翻译详情', column, {
+      enableScripts: true,
+      retainContextWhenHidden: true,
+      localResourceRoots: [
+        vscode.Uri.joinPath(extensionUri, 'out'),
+        vscode.Uri.joinPath(extensionUri, 'node_modules'),
+      ],
+    });
 
     const ctrl = new SidebarPanelController(panel, extensionUri, extensionContext);
     this.setCurrentPanel(ctrl);

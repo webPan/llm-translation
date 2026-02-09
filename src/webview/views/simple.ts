@@ -53,22 +53,27 @@ function renderResult(result: any): void {
   const alternatives: string[] = Array.isArray(result.alternatives) ? result.alternatives : [];
   const meta = result.meta || {};
 
-  const lang = meta.sourceLang && meta.targetLang
-    ? `${getLanguageName(meta.sourceLang)} → ${getLanguageName(meta.targetLang)}`
-    : '';
+  const lang =
+    meta.sourceLang && meta.targetLang
+      ? `${getLanguageName(meta.sourceLang)} → ${getLanguageName(meta.targetLang)}`
+      : '';
 
   app.innerHTML = `
     <div style="display:flex; flex-direction:column; gap:10px;">
       <div style="font-size: 14px; line-height: 1.6;">${escapeHtml(translation)}</div>
       ${pronunciation ? `<div style="font-style: italic; color: var(--vscode-textLink-foreground);">${escapeHtml(pronunciation)}</div>` : ''}
 
-      ${(lang || meta.provider || meta.duration) ? `
+      ${
+        lang || meta.provider || meta.duration
+          ? `
         <div style="font-size: 11px; color: var(--vscode-descriptionForeground); display:flex; gap:10px; flex-wrap: wrap;">
           ${lang ? `<span>${escapeHtml(lang)}</span>` : ''}
           ${meta.provider ? `<span>${escapeHtml(String(meta.provider))}</span>` : ''}
           ${meta.duration ? `<span>${escapeHtml(formatDuration(Number(meta.duration)))}</span>` : ''}
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       <div style="display:flex; gap:8px;">
         <button class="action-copy" style="flex:1;">复制</button>
@@ -76,14 +81,18 @@ function renderResult(result: any): void {
         <button class="action-replace" style="flex:1;">替换</button>
       </div>
 
-      ${alternatives.length ? `
+      ${
+        alternatives.length
+          ? `
         <div style="border-top:1px solid var(--vscode-panel-border); padding-top:8px;">
           <div style="font-size: 11px; color: var(--vscode-descriptionForeground); margin-bottom:6px;">其他翻译</div>
           <div style="display:flex; flex-direction:column; gap:4px;">
             ${alternatives.map((alt, i) => `<div class="alternative-item" data-index="${i}" style="cursor:pointer; padding:4px 0;">${escapeHtml(String(alt))}</div>`).join('')}
           </div>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
     </div>
   `;
 }

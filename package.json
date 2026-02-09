@@ -328,29 +328,51 @@
     "watch": "tsc -watch -p ./",
     "build:webview": "node build-webview.js",
     "watch:webview": "node build-webview.js --watch",
+    "lint": "eslint .",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "prepare": "husky install",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "package": "vsce package",
     "release": "npm version patch -m \"chore(release): %s\" && git push origin --tags",
     "release:minor": "npm version minor -m \"chore(release): %s\" && git push origin --tags",
     "release:major": "npm version major -m \"chore(release): %s\" && git push origin --tags"
   },
+  "lint-staged": {
+    "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
+    "@eslint/js": "^9.0.0",
     "@types/node": "^20.10.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.85.0",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.3.0",
+    "husky": "^9.1.7",
+    "jiti": "^2.6.1",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.6.2",
     "typescript": "^5.3.3",
+    "typescript-eslint": "^8.54.0",
     "vsce": "^2.15.0"
   },
   "dependencies": {
     "@lit/react": "^1.0.8",
-    "@vscode/codicons": "^0.0.44",
     "@vscode-elements/elements": "^2.4.0",
+    "@vscode/codicons": "^0.0.44",
     "axios": "^1.6.2",
     "esbuild": "^0.27.2",
     "lit": "^3.3.2",

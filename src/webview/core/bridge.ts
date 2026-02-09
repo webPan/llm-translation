@@ -50,7 +50,7 @@ export function post<TPayload = any>(type: string, payload?: TPayload): void {
 export function request<TPayload = any, TResponse = any>(
   type: string,
   payload?: TPayload,
-  timeoutMs = DEFAULT_TIMEOUT
+  timeoutMs = DEFAULT_TIMEOUT,
 ): Promise<TResponse> {
   const id = generateId();
   const message: BridgeMessage<TPayload> = {
@@ -76,7 +76,7 @@ export function request<TPayload = any, TResponse = any>(
  */
 export function onMessage<TPayload = any>(
   type: string,
-  handler: (payload: TPayload) => void
+  handler: (payload: TPayload) => void,
 ): () => void {
   const listener = (event: MessageEvent<BridgeMessage>) => {
     const message = event.data;

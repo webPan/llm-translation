@@ -17,20 +17,37 @@ export class ResultParser {
     provider: string,
     model: string,
     duration: number,
-    options: ParseOptions = {}
   ): TranslationResult {
     // Try JSON parsing first
     const jsonResult = this.tryParseJson(content);
     if (jsonResult) {
-      return this.buildResult(jsonResult, original, sourceLang, targetLang, provider, model, duration, content);
+      return this.buildResult(
+        jsonResult,
+        original,
+        sourceLang,
+        targetLang,
+        provider,
+        model,
+        duration,
+        content,
+      );
     }
-    
+
     // Try Markdown parsing
     const markdownResult = this.tryParseMarkdown(content);
     if (markdownResult) {
-      return this.buildResult(markdownResult, original, sourceLang, targetLang, provider, model, duration, content);
+      return this.buildResult(
+        markdownResult,
+        original,
+        sourceLang,
+        targetLang,
+        provider,
+        model,
+        duration,
+        content,
+      );
     }
-    
+
     // Fallback to plain text
     return this.buildResult(
       { translation: content.trim() },
@@ -40,10 +57,10 @@ export class ResultParser {
       provider,
       model,
       duration,
-      content
+      content,
     );
   }
-  
+
   // Try to parse JSON from content
   private tryParseJson(content: string): Partial<TranslationResult> | null {
     try {
@@ -54,35 +71,35 @@ export class ResultParser {
       } catch {
         // Continue to next strategy
       }
-      
+
       // Strategy 2: Extract JSON from markdown code block
       const codeBlockMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
       if (codeBlockMatch) {
         const parsed = JSON.parse(codeBlockMatch[1].trim());
         return this.normalizeResult(parsed);
       }
-      
+
       // Strategy 3: Extract JSON from text (find first { and last })
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         return this.normalizeResult(parsed);
       }
-      
+
       return null;
     } catch {
       return null;
     }
   }
-  
+
   // Try to parse Markdown format
   private tryParseMarkdown(content: string): Partial<TranslationResult> | null {
     const result: Partial<TranslationResult> = {};
-    
+
     // Extract translation (usually the first non-empty line or a header)
-    const lines = content.split('\n').filter(l => l.trim());
+    const lines = content.split('\n').filter((l) => l.trim());
     if (lines.length === 0) return null;
-    
+
     // Look for "翻译" or "Translation" section
     const translationMatch = content.match(/(?:翻译|Translation)[：:]\s*\n?\s*([^\n]+)/i);
     if (translationMatch) {
@@ -91,29 +108,31 @@ export class ResultParser {
       // Use first line as translation
       result.translation = lines[0].replace(/^#+\s*/, '').trim();
     }
-    
+
     // Extract pronunciation
-    const pronunciationMatch = content.match(/(?:发音|Pronunciation)[：:]\s*\/([^\/]+)\//i);
+    const pronunciationMatch = content.match(/(?:发音|Pronunciation)[：:]\s*\/([^/]+)\//i);
     if (pronunciationMatch) {
       result.pronunciation = `/${pronunciationMatch[1]}/`;
     }
-    
+
     // Extract alternatives
-    const alternativesMatch = content.match(/(?:替代翻译|Alternatives)[：:]\s*\n?([^#]+)(?:\n#|$)/i);
+    const alternativesMatch = content.match(
+      /(?:替代翻译|Alternatives)[：:]\s*\n?([^#]+)(?:\n#|$)/i,
+    );
     if (alternativesMatch) {
       result.alternatives = alternativesMatch[1]
         .split(/[\n,，]/)
-        .map(s => s.trim())
-        .filter(s => s && !s.startsWith('-'));
+        .map((s) => s.trim())
+        .filter((s) => s && !s.startsWith('-'));
     }
-    
+
     // Extract explanations (bullet points)
     const explanations: WordExplanation[] = [];
     const explanationMatch = content.match(/(?:词汇|Explanations)[：:]\s*\n?([\s\S]*?)(?:\n#|$)/i);
     if (explanationMatch) {
       const lines = explanationMatch[1].split('\n');
       for (const line of lines) {
-        const match = line.match(/^[-*]\s*(\w+)[\s\/]*([^:]+)[:：]\s*(.+)$/);
+        const match = line.match(/^[-*]\s*(\w+)[\s/]*([^:]+)[:：]\s*(.+)$/);
         if (match) {
           explanations.push({
             word: match[1].trim(),
@@ -126,7 +145,7 @@ export class ResultParser {
     if (explanations.length > 0) {
       result.explanations = explanations;
     }
-    
+
     // Extract examples
     const examples: Example[] = [];
     const exampleMatch = content.match(/(?:例句|Examples)[：:]\s*\n?([\s\S]*?)(?:\n#|$)/i);
@@ -143,28 +162,27 @@ export class ResultParser {
     if (examples.length > 0) {
       result.examples = examples;
     }
-    
+
     return result.translation ? result : null;
   }
-  
+
   // Normalize parsed result to ensure required fields
   private normalizeResult(parsed: any): Partial<TranslationResult> {
     const result: Partial<TranslationResult> = {};
-    
+
     // Handle different field names
-    result.translation = parsed.translation || 
-                        parsed.translatedText || 
-                        parsed.result || 
-                        parsed.text ||
-                        (typeof parsed === 'string' ? parsed : undefined);
-    
+    result.translation =
+      parsed.translation ||
+      parsed.translatedText ||
+      parsed.result ||
+      parsed.text ||
+      (typeof parsed === 'string' ? parsed : undefined);
+
     result.pronunciation = parsed.pronunciation || parsed.phonetic || undefined;
-    
-    result.alternatives = Array.isArray(parsed.alternatives) 
-      ? parsed.alternatives 
-      : undefined;
-    
-    result.explanations = Array.isArray(parsed.explanations) 
+
+    result.alternatives = Array.isArray(parsed.alternatives) ? parsed.alternatives : undefined;
+
+    result.explanations = Array.isArray(parsed.explanations)
       ? parsed.explanations.map((e: any) => ({
           word: e.word || e.term || '',
           meaning: e.meaning || e.definition || '',
@@ -172,17 +190,17 @@ export class ResultParser {
           pos: e.pos || e.partOfSpeech,
         }))
       : undefined;
-    
+
     result.examples = Array.isArray(parsed.examples)
       ? parsed.examples.map((e: any) => ({
           original: e.original || e.source || '',
           translation: e.translation || e.target || '',
         }))
       : undefined;
-    
+
     return result;
   }
-  
+
   // Build final TranslationResult
   private buildResult(
     partial: Partial<TranslationResult>,
@@ -192,7 +210,7 @@ export class ResultParser {
     provider: string,
     model: string,
     duration: number,
-    raw: any
+    raw: any,
   ): TranslationResult {
     return {
       original,
@@ -209,31 +227,31 @@ export class ResultParser {
       raw,
     };
   }
-  
+
   // Detect format of content
   detectFormat(content: string): ParseFormat {
     const trimmed = content.trim();
-    
+
     // Check for JSON
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       return 'json';
     }
-    
+
     // Check for JSON in code block
     if (trimmed.includes('```json') || trimmed.includes('```\n{')) {
       return 'json';
     }
-    
+
     // Check for Markdown headers
     if (/^#{1,6}\s/.test(trimmed) || /\n#{1,6}\s/.test(trimmed)) {
       return 'markdown';
     }
-    
+
     // Check for Markdown-style sections
     if (/\*\*|__|[-*]\s/.test(trimmed)) {
       return 'markdown';
     }
-    
+
     return 'plain';
   }
 }

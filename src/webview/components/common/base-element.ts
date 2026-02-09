@@ -19,7 +19,7 @@ export class BaseElement extends LitElement {
       --success: var(--vscode-testing-iconPassed);
       --warning: var(--vscode-editorWarning-foreground);
       --description: var(--vscode-descriptionForeground);
-      
+
       font-family: var(--vscode-font-family);
       font-size: var(--vscode-font-size);
       color: var(--foreground);

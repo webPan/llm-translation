@@ -132,10 +132,7 @@ async function copyStyles() {
     const files = fs.readdirSync(stylesDir);
     for (const file of files) {
       if (file.endsWith('.css')) {
-        fs.copyFileSync(
-          path.join(stylesDir, file),
-          path.join(outStylesDir, file)
-        );
+        fs.copyFileSync(path.join(stylesDir, file), path.join(outStylesDir, file));
       }
     }
     console.log('✅ 样式文件复制成功！');
@@ -160,10 +157,7 @@ async function copyCodicons() {
 
   const files = fs.readdirSync(codiconDir);
   for (const file of files) {
-    fs.copyFileSync(
-      path.join(codiconDir, file),
-      path.join(outCodiconDir, file)
-    );
+    fs.copyFileSync(path.join(codiconDir, file), path.join(outCodiconDir, file));
   }
 
   console.log('✅ codicon 资源复制成功！');
@@ -177,11 +171,7 @@ async function main() {
 
   try {
     // 并行构建所有面板
-    await Promise.all([
-      buildSettingsPanel(),
-      buildSimplePanel(),
-      buildFullPanel(),
-    ]);
+    await Promise.all([buildSettingsPanel(), buildSimplePanel(), buildFullPanel()]);
 
     // 复制样式文件
     await copyStyles();

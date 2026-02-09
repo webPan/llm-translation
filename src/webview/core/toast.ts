@@ -137,7 +137,9 @@ export function setToastPosition(position: ToastPosition): void {
 export function showToast(message: string, options: ToastOptions = {}): void {
   if (!message) return;
   const type = options.type ?? 'info';
-  const duration = Number.isFinite(options.duration) ? Math.max(800, options.duration as number) : DEFAULT_DURATION;
+  const duration = Number.isFinite(options.duration)
+    ? Math.max(800, options.duration as number)
+    : DEFAULT_DURATION;
 
   if (options.position && options.position !== currentPosition) {
     setToastPosition(options.position);

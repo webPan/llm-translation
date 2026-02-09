@@ -26,7 +26,11 @@ export abstract class BasePanelController {
 
   private disposables: vscode.Disposable[] = [];
 
-  constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, extensionContext: vscode.ExtensionContext) {
+  constructor(
+    panel: vscode.WebviewPanel,
+    extensionUri: vscode.Uri,
+    extensionContext: vscode.ExtensionContext,
+  ) {
     this.panel = panel;
     this.extensionUri = extensionUri;
     this.extensionContext = extensionContext;
@@ -106,7 +110,7 @@ export abstract class BasePanelController {
   }
 
   dispose(): void {
-    this.disposables.forEach(d => d.dispose());
+    this.disposables.forEach((d) => d.dispose());
     this.disposables = [];
     this.panel.dispose();
   }
@@ -121,7 +125,7 @@ export abstract class BasePanelController {
         }
       },
       undefined,
-      this.disposables
+      this.disposables,
     );
 
     this.panel.onDidDispose(
@@ -129,7 +133,7 @@ export abstract class BasePanelController {
         this.dispose();
       },
       undefined,
-      this.disposables
+      this.disposables,
     );
   }
 

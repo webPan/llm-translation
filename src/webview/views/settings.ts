@@ -29,23 +29,20 @@ async function init() {
     const [generalConfig, providersData, templatesData] = await Promise.all([
       request<undefined, any>('config.get'),
       request<undefined, any>('config.providers.get'),
-      request<undefined, any>('config.templates.get')
+      request<undefined, any>('config.templates.get'),
     ]);
 
     const config: AppConfig = {
       general: {
         defaultProvider: generalConfig?.defaultProvider || 'deepseek',
         displayMode: generalConfig?.displayMode || 'simple',
-        defaultTargetLang: generalConfig?.defaultTargetLang || 'zh'
+        defaultTargetLang: generalConfig?.defaultTargetLang || 'zh',
       },
-      providers: providersData?.providers || {}
+      providers: providersData?.providers || {},
     };
 
     app.setConfig(config);
-    app.setTemplates(
-      templatesData?.templates || [],
-      templatesData?.defaultId || 'default'
-    );
+    app.setTemplates(templatesData?.templates || [], templatesData?.defaultId || 'default');
   } catch (error) {
     console.error('Failed to load config:', error);
     showToast('加载配置失败', { type: 'error' });
@@ -58,7 +55,7 @@ async function init() {
       await Promise.all([
         request('config.update', { key: 'defaultProvider', value: detail.defaultProvider }),
         request('config.update', { key: 'displayMode', value: detail.displayMode }),
-        request('config.update', { key: 'defaultTargetLang', value: detail.defaultTargetLang })
+        request('config.update', { key: 'defaultTargetLang', value: detail.defaultTargetLang }),
       ]);
       showToast('设置已保存', { type: 'success' });
     } catch (error) {
@@ -75,8 +72,8 @@ async function init() {
         config: {
           apiKey: detail.apiKey,
           apiEndpoint: detail.baseUrl,
-          model: detail.model
-        }
+          model: detail.model,
+        },
       });
       showToast('服务商配置已保存', { type: 'success' });
     } catch (error) {
@@ -140,7 +137,6 @@ async function init() {
       showToast(message, { type: 'error' });
     }
   });
-
   app.addEventListener('template-export', async () => {
     try {
       const result = await request<any, any>('config.templates.exportFile');
@@ -159,7 +155,7 @@ async function init() {
         ...detail,
         id: `custom-${Date.now()}`,
         name: `${detail.name} (复制)`,
-        isBuiltin: false
+        isBuiltin: false,
       };
       await request('config.templates.save', { template: newTemplate });
       showToast('模板已复制', { type: 'success' });
@@ -177,7 +173,7 @@ async function init() {
     if (currentApp) {
       currentApp.setTemplates(
         templatesData?.templates || [],
-        templatesData?.defaultId || 'default'
+        templatesData?.defaultId || 'default',
       );
     }
   }

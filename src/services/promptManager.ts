@@ -110,68 +110,77 @@ const BUILTIN_TEMPLATES: PromptTemplate[] = [
 export class PromptManager {
   private static readonly CUSTOM_TEMPLATES_KEY = 'llmTranslation.customPromptTemplates';
   private static readonly DEFAULT_TEMPLATE_KEY = 'llmTranslation.defaultPromptTemplate';
-  
+
   // Get all available templates (built-in + custom)
   getAllTemplates(): PromptTemplate[] {
     const customTemplates = this.getCustomTemplates();
     return [...BUILTIN_TEMPLATES, ...customTemplates];
   }
-  
+
   // Get built-in templates
   getBuiltinTemplates(): PromptTemplate[] {
     return [...BUILTIN_TEMPLATES];
   }
-  
+
   // Get custom templates from configuration
   getCustomTemplates(): PromptTemplate[] {
     const config = vscode.workspace.getConfiguration();
     return config.get<PromptTemplate[]>(PromptManager.CUSTOM_TEMPLATES_KEY, []);
   }
-  
+
   // Get default template ID
   getDefaultTemplateId(): string {
     const config = vscode.workspace.getConfiguration();
     return config.get<string>(PromptManager.DEFAULT_TEMPLATE_KEY, 'default');
   }
-  
+
   // Get a template by ID
   getTemplate(id: string): PromptTemplate | undefined {
     const allTemplates = this.getAllTemplates();
     console.log('[PromptManager] Looking for template:', id);
-    console.log('[PromptManager] Available templates:', allTemplates.map(t => ({ id: t.id, name: t.name })));
-    const found = allTemplates.find(t => t.id === id);
-    console.log('[PromptManager] Found template:', found ? { id: found.id, name: found.name } : 'NOT FOUND');
+    console.log(
+      '[PromptManager] Available templates:',
+      allTemplates.map((t) => ({ id: t.id, name: t.name })),
+    );
+    const found = allTemplates.find((t) => t.id === id);
+    console.log(
+      '[PromptManager] Found template:',
+      found ? { id: found.id, name: found.name } : 'NOT FOUND',
+    );
     return found;
   }
-  
+
   // Build prompt with variables replaced
   buildPrompt(
     templateId: string,
     text: string,
     sourceLang: Language,
-    targetLang: Language
+    targetLang: Language,
   ): string {
     console.log('[PromptManager] buildPrompt called with templateId:', templateId);
     const template = this.getTemplate(templateId);
     if (!template) {
-      console.warn('[PromptManager] Template not found, falling back to default. Requested:', templateId);
+      console.warn(
+        '[PromptManager] Template not found, falling back to default. Requested:',
+        templateId,
+      );
       // Fallback to default template
       return this.buildPrompt('default', text, sourceLang, targetLang);
     }
-    
+
     const langNames: Record<string, string> = {
-      'zh': '中文',
-      'en': '英文',
-      'ja': '日文',
-      'auto': '自动检测语言',
+      zh: '中文',
+      en: '英文',
+      ja: '日文',
+      auto: '自动检测语言',
     };
-    
+
     return template.template
       .replace(/\{text\}/g, text)
       .replace(/\{sourceLang\}/g, langNames[sourceLang] || sourceLang)
       .replace(/\{targetLang\}/g, langNames[targetLang] || targetLang);
   }
-  
+
   // Add a custom template
   async addCustomTemplate(template: Omit<PromptTemplate, 'id'>): Promise<void> {
     const customTemplates = this.getCustomTemplates();
@@ -179,53 +188,45 @@ export class PromptManager {
       ...template,
       id: `custom-${Date.now()}`,
     };
-    
+
     const config = vscode.workspace.getConfiguration();
     await config.update(
       PromptManager.CUSTOM_TEMPLATES_KEY,
       [...customTemplates, newTemplate],
-      true
+      true,
     );
   }
-  
+
   // Update a custom template
   async updateCustomTemplate(template: PromptTemplate): Promise<void> {
     const customTemplates = this.getCustomTemplates();
-    const index = customTemplates.findIndex(t => t.id === template.id);
-    
+    const index = customTemplates.findIndex((t) => t.id === template.id);
+
     if (index === -1) {
       throw new Error('模板不存在');
     }
-    
+
     customTemplates[index] = template;
-    
+
     const config = vscode.workspace.getConfiguration();
-    await config.update(
-      PromptManager.CUSTOM_TEMPLATES_KEY,
-      customTemplates,
-      true
-    );
+    await config.update(PromptManager.CUSTOM_TEMPLATES_KEY, customTemplates, true);
   }
-  
+
   // Delete a custom template
   async deleteCustomTemplate(id: string): Promise<void> {
     const customTemplates = this.getCustomTemplates();
-    const filtered = customTemplates.filter(t => t.id !== id);
-    
+    const filtered = customTemplates.filter((t) => t.id !== id);
+
     const config = vscode.workspace.getConfiguration();
-    await config.update(
-      PromptManager.CUSTOM_TEMPLATES_KEY,
-      filtered,
-      true
-    );
+    await config.update(PromptManager.CUSTOM_TEMPLATES_KEY, filtered, true);
   }
-  
+
   // Set default template
   async setDefaultTemplate(id: string): Promise<void> {
     const config = vscode.workspace.getConfiguration();
     await config.update(PromptManager.DEFAULT_TEMPLATE_KEY, id, true);
   }
-  
+
   // Export templates to JSON
   exportTemplates(options?: { includeBuiltin?: boolean }): string {
     const includeBuiltin = options?.includeBuiltin === true;
@@ -239,11 +240,11 @@ export class PromptManager {
 
     return JSON.stringify(payload, null, 2);
   }
-  
+
   // Import templates from JSON
   async importTemplates(
     json: string,
-    options?: { conflictStrategy?: 'rename'; setDefault?: boolean }
+    options?: { conflictStrategy?: 'rename'; setDefault?: boolean },
   ): Promise<{ importedCount: number; defaultApplied: boolean }> {
     try {
       const parsed = JSON.parse(json);
@@ -255,8 +256,8 @@ export class PromptManager {
 
       const defaultId = typeof payload?.defaultId === 'string' ? payload.defaultId : undefined;
       const customTemplates = this.getCustomTemplates();
-      const builtinIds = new Set(BUILTIN_TEMPLATES.map(t => t.id));
-      const existingIds = new Set(customTemplates.map(t => t.id));
+      const builtinIds = new Set(BUILTIN_TEMPLATES.map((t) => t.id));
+      const existingIds = new Set(customTemplates.map((t) => t.id));
       const merged = [...customTemplates];
       const idMap = new Map<string, string>();
       let counter = 0;
@@ -284,7 +285,8 @@ export class PromptManager {
         const normalized: PromptTemplate = {
           id,
           name,
-          description: typeof (item as any).description === 'string' ? (item as any).description : '',
+          description:
+            typeof (item as any).description === 'string' ? (item as any).description : '',
           template,
         };
 
@@ -293,16 +295,13 @@ export class PromptManager {
       }
 
       const config = vscode.workspace.getConfiguration();
-      await config.update(
-        PromptManager.CUSTOM_TEMPLATES_KEY,
-        merged,
-        true
-      );
+      await config.update(PromptManager.CUSTOM_TEMPLATES_KEY, merged, true);
 
       let defaultApplied = false;
       if (options?.setDefault && defaultId) {
-        const resolved = idMap.get(defaultId)
-          || (existingIds.has(defaultId) || builtinIds.has(defaultId) ? defaultId : undefined);
+        const resolved =
+          idMap.get(defaultId) ||
+          (existingIds.has(defaultId) || builtinIds.has(defaultId) ? defaultId : undefined);
         if (resolved) {
           await this.setDefaultTemplate(resolved);
           defaultApplied = true;
@@ -317,7 +316,7 @@ export class PromptManager {
       throw new Error('导入模板失败：无效的 JSON 格式');
     }
   }
-  
+
   // Get available variables for templates
   getAvailableVariables(): { name: string; description: string }[] {
     return [

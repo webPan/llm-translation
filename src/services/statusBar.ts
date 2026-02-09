@@ -10,16 +10,13 @@ export class StatusBarManager {
     this.providerManager = providerManager;
 
     // 主状态栏项 - 显示当前提供商
-    this.statusBarItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      100
-    );
+    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     this.statusBarItem.command = 'llm-translation.switchProvider';
 
     // 设置按钮 - 独立的齿轮图标
     this.settingsButtonItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      99
+      99,
     );
     this.settingsButtonItem.text = '$(gear)';
     this.settingsButtonItem.command = 'llm-translation.openSettings';
@@ -32,7 +29,7 @@ export class StatusBarManager {
   update(): void {
     const providers = this.providerManager.getAvailableProviders();
     const defaultProvider = this.providerManager.getDefaultProvider();
-    const configuredProviders = providers.filter(p => p.configured);
+    const configuredProviders = providers.filter((p) => p.configured);
 
     // Build status bar text
     const providerName = defaultProvider.name;

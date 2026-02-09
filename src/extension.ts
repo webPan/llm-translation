@@ -15,7 +15,11 @@ import { resetResultParser } from './services/parser';
 import { initStatusBar, resetStatusBar } from './services/statusBar';
 
 // 导出面板管理器以供其他模块使用
-export { getSimplePanelManager, getSidebarPanelManager, getSettingsPanelManager } from './webview/controllers';
+export {
+  getSimplePanelManager,
+  getSidebarPanelManager,
+  getSettingsPanelManager,
+} from './webview/controllers';
 
 export function activate(context: vscode.ExtensionContext): void {
   console.log('LLM Translation extension is now active!');
@@ -37,14 +41,10 @@ export function activate(context: vscode.ExtensionContext): void {
     context,
     providerManager,
     simplePanelManager,
-    sidebarPanelManager
+    sidebarPanelManager,
   );
 
-  const configDisposables = registerConfigCommands(
-    context,
-    providerManager,
-    settingsPanelManager
-  );
+  const configDisposables = registerConfigCommands(context, providerManager, settingsPanelManager);
 
   // Add all disposables to context
   const inlineCopyDisposable = vscode.commands.registerCommand(
@@ -54,25 +54,20 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!value) return;
       await vscode.env.clipboard.writeText(value);
       vscode.window.showInformationMessage('已复制');
-    }
+    },
   );
 
-  context.subscriptions.push(
-    ...translateDisposables,
-    ...configDisposables,
-    inlineCopyDisposable,
-    {
-      dispose: () => {
-        resetProviderManager();
-        resetSimplePanelManager();
-        resetSidebarPanelManager();
-        resetSettingsPanelManager();
-        resetPromptManager();
-        resetResultParser();
-        resetStatusBar();
-      },
-    }
-  );
+  context.subscriptions.push(...translateDisposables, ...configDisposables, inlineCopyDisposable, {
+    dispose: () => {
+      resetProviderManager();
+      resetSimplePanelManager();
+      resetSidebarPanelManager();
+      resetSettingsPanelManager();
+      resetPromptManager();
+      resetResultParser();
+      resetStatusBar();
+    },
+  });
 
   // Watch configuration changes
   const configWatcher = vscode.workspace.onDidChangeConfiguration((e) => {
@@ -109,14 +104,14 @@ async function showWelcomeMessage(context: vscode.ExtensionContext): Promise<voi
       '欢迎使用 LLM Translation！请先配置 API Key 开始使用。',
       '配置 API Key',
       '查看文档',
-      '不再提醒'
+      '不再提醒',
     );
 
     if (result === '配置 API Key') {
       vscode.commands.executeCommand('llm-translation.setApiKey');
     } else if (result === '查看文档') {
       vscode.env.openExternal(
-        vscode.Uri.parse('https://github.com/your-repo/llm-translation#readme')
+        vscode.Uri.parse('https://github.com/your-repo/llm-translation#readme'),
       );
     } else if (result === '不再提醒') {
       await context.globalState.update('hasShownWelcome', true);

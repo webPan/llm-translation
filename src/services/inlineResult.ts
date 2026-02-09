@@ -8,13 +8,14 @@ export function showInlineTranslation(
   editor: vscode.TextEditor,
   selection: vscode.Selection,
   text: string,
-  durationMs: number = DEFAULT_DURATION_MS
+  durationMs: number = DEFAULT_DURATION_MS,
 ): void {
   clearInlineTranslation();
 
   const short = text.length > 80 ? `${text.slice(0, 77)}...` : text;
   const range = selection.isEmpty
-    ? editor.document.getWordRangeAtPosition(selection.active) ?? new vscode.Range(selection.end, selection.end.translate(0, 1))
+    ? (editor.document.getWordRangeAtPosition(selection.active) ??
+      new vscode.Range(selection.end, selection.end.translate(0, 1)))
     : selection;
 
   decoration = vscode.window.createTextEditorDecorationType({
@@ -35,9 +36,12 @@ export function showInlineTranslation(
     },
   ]);
 
-  clearTimer = setTimeout(() => {
-    clearInlineTranslation();
-  }, Math.max(800, durationMs));
+  clearTimer = setTimeout(
+    () => {
+      clearInlineTranslation();
+    },
+    Math.max(800, durationMs),
+  );
 }
 
 export function clearInlineTranslation(): void {

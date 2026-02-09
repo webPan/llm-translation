@@ -5,12 +5,12 @@ import { BasePanelController, BasePanelManager, type BridgeMessage } from './Bas
 
 /**
  * 设置面板控制器
- * 
+ *
  * 职责：
  * - 管理 WebviewPanel 生命周期
  * - 提供 HTML 入口（引用 views/settings.js）
  * - 处理来自 Webview 的消息请求
- * 
+ *
  * 注意：不包含业务 UI 代码，UI 逻辑在 views/settings.ts 中
  */
 export class SettingsPanelController extends BasePanelController {
@@ -18,7 +18,7 @@ export class SettingsPanelController extends BasePanelController {
     panel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
     extensionContext: vscode.ExtensionContext,
-    private readonly providerManager: ProviderManager
+    private readonly providerManager: ProviderManager,
   ) {
     super(panel, extensionUri, extensionContext);
   }
@@ -78,7 +78,10 @@ export class SettingsPanelController extends BasePanelController {
    * 注册消息处理器
    * 处理来自 Webview 的请求
    */
-  protected getMessageHandlers(): Record<string, (message: BridgeMessage) => unknown | Promise<unknown>> {
+  protected getMessageHandlers(): Record<
+    string,
+    (message: BridgeMessage) => unknown | Promise<unknown>
+  > {
     return {
       // 面板控制
       'panel.focus': () => {
@@ -92,7 +95,7 @@ export class SettingsPanelController extends BasePanelController {
       'notification.show': async (message) => {
         const { message: text, type } = (message.payload || {}) as any;
         if (!text) return;
-        
+
         const msgText = String(text);
         switch (type) {
           case 'error':
@@ -110,7 +113,7 @@ export class SettingsPanelController extends BasePanelController {
       'config.get': async (message) => {
         const { key } = (message.payload || {}) as any;
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        
+
         if (key) {
           return config.get(key);
         }
@@ -128,9 +131,10 @@ export class SettingsPanelController extends BasePanelController {
       'config.update': async (message) => {
         const { key, value, scope = 'user' } = (message.payload || {}) as any;
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        const target = scope === 'workspace'
-          ? vscode.ConfigurationTarget.Workspace
-          : vscode.ConfigurationTarget.Global;
+        const target =
+          scope === 'workspace'
+            ? vscode.ConfigurationTarget.Workspace
+            : vscode.ConfigurationTarget.Global;
 
         await config.update(key, value, target);
         return { success: true };
@@ -191,14 +195,14 @@ export class SettingsPanelController extends BasePanelController {
         const defaultId = promptManager.getDefaultTemplateId();
 
         return {
-          templates: templates.map(t => ({
+          templates: templates.map((t) => ({
             id: t.id,
             name: t.name,
             description: t.description,
             template: t.template,
-            isBuiltin: !t.id.startsWith('custom-')
+            isBuiltin: !t.id.startsWith('custom-'),
           })),
-          defaultId
+          defaultId,
         };
       },
 
@@ -277,7 +281,10 @@ export class SettingsPanelController extends BasePanelController {
         const json = promptManager.exportTemplates({ includeBuiltin: false });
 
         const defaultUri = vscode.workspace.workspaceFolders?.[0]
-          ? vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, 'llm-translation-templates.json')
+          ? vscode.Uri.joinPath(
+              vscode.workspace.workspaceFolders[0].uri,
+              'llm-translation-templates.json',
+            )
           : undefined;
 
         const fileUri = await vscode.window.showSaveDialog({
@@ -376,7 +383,10 @@ export class SettingsPanelManager extends BasePanelManager<SettingsPanelControll
     SettingsPanelManager.instance = undefined;
   }
 
-  createOrShow(extensionUri: vscode.Uri, extensionContext: vscode.ExtensionContext): SettingsPanelController {
+  createOrShow(
+    extensionUri: vscode.Uri,
+    extensionContext: vscode.ExtensionContext,
+  ): SettingsPanelController {
     if (this.currentPanel) {
       this.currentPanel.show();
       return this.currentPanel;
@@ -395,10 +405,15 @@ export class SettingsPanelManager extends BasePanelManager<SettingsPanelControll
           vscode.Uri.joinPath(extensionUri, 'out'),
           vscode.Uri.joinPath(extensionUri, 'node_modules'),
         ],
-      }
+      },
     );
 
-    const ctrl = new SettingsPanelController(panel, extensionUri, extensionContext, this.providerManager);
+    const ctrl = new SettingsPanelController(
+      panel,
+      extensionUri,
+      extensionContext,
+      this.providerManager,
+    );
     this.setCurrentPanel(ctrl);
     return ctrl;
   }

@@ -9,7 +9,7 @@ export function registerTranslateCommands(
   context: vscode.ExtensionContext,
   providerManager: ProviderManager,
   simplePanelManager: SimplePanelManager,
-  sidebarPanelManager: SidebarPanelManager
+  sidebarPanelManager: SidebarPanelManager,
 ): vscode.Disposable[] {
   const disposables: vscode.Disposable[] = [];
 
@@ -24,47 +24,65 @@ export function registerTranslateCommands(
       } else {
         await translateSidebar(context, providerManager, sidebarPanelManager);
       }
-    })
+    }),
   );
 
   // Simple mode command
   disposables.push(
     vscode.commands.registerCommand('llm-translation.translateSimple', async () => {
       await translateSimple(context, providerManager, simplePanelManager, sidebarPanelManager);
-    })
+    }),
   );
 
   // Sidebar mode command
   disposables.push(
     vscode.commands.registerCommand('llm-translation.translateFull', async () => {
       await translateSidebar(context, providerManager, sidebarPanelManager);
-    })
+    }),
   );
 
   // Quick translate commands
   disposables.push(
     vscode.commands.registerCommand('llm-translation.translateToEnglish', async () => {
-      await translateSimple(context, providerManager, simplePanelManager, sidebarPanelManager, 'en');
-    })
+      await translateSimple(
+        context,
+        providerManager,
+        simplePanelManager,
+        sidebarPanelManager,
+        'en',
+      );
+    }),
   );
 
   disposables.push(
     vscode.commands.registerCommand('llm-translation.translateToChinese', async () => {
-      await translateSimple(context, providerManager, simplePanelManager, sidebarPanelManager, 'zh');
-    })
+      await translateSimple(
+        context,
+        providerManager,
+        simplePanelManager,
+        sidebarPanelManager,
+        'zh',
+      );
+    }),
   );
 
   disposables.push(
     vscode.commands.registerCommand('llm-translation.translateToJapanese', async () => {
-      await translateSimple(context, providerManager, simplePanelManager, sidebarPanelManager, 'ja');
-    })
+      await translateSimple(
+        context,
+        providerManager,
+        simplePanelManager,
+        sidebarPanelManager,
+        'ja',
+      );
+    }),
   );
 
   // Translate and replace
   disposables.push(
     vscode.commands.registerCommand('llm-translation.translateAndReplace', async () => {
       await translateAndReplace(providerManager);
-    })
+    }),
   );
 
   return disposables;
@@ -75,7 +93,7 @@ async function translateSimple(
   providerManager: ProviderManager,
   simplePanelManager: SimplePanelManager,
   sidebarPanelManager: SidebarPanelManager,
-  forceTargetLang?: Language
+  forceTargetLang?: Language,
 ): Promise<void> {
   console.log('[LLM Translation] translateSimple called');
 
@@ -107,7 +125,9 @@ async function translateSimple(
     async () => {
       try {
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        const targetLang = forceTargetLang || getTargetLang(text, config.get<Language>('defaultTargetLang', 'auto'), 'zh');
+        const targetLang =
+          forceTargetLang ||
+          getTargetLang(text, config.get<Language>('defaultTargetLang', 'auto'), 'zh');
 
         console.log('[LLM Translation] Translating to:', targetLang);
 
@@ -121,7 +141,7 @@ async function translateSimple(
         console.error('[LLM Translation] Translation error:', e);
         error = e instanceof Error ? e : new Error('翻译失败');
       }
-    }
+    },
   );
 
   // Handle error
@@ -171,7 +191,7 @@ async function translateSimple(
             // Panel closed
           },
         },
-        vscode.ViewColumn.Beside
+        vscode.ViewColumn.Beside,
       );
     }
 
@@ -186,7 +206,7 @@ async function translateSimple(
         '复制',
         '详情',
         '替换',
-        '关闭'
+        '关闭',
       );
 
       if (action === '复制') {
@@ -210,7 +230,7 @@ async function translateSimple(
 async function translateSidebar(
   context: vscode.ExtensionContext,
   providerManager: ProviderManager,
-  sidebarPanelManager: SidebarPanelManager
+  sidebarPanelManager: SidebarPanelManager,
 ): Promise<void> {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
@@ -241,7 +261,7 @@ async function translateSidebar(
     if (!provider.validateConfig()) {
       const action = await vscode.window.showErrorMessage(
         `${provider.name} API Key 未配置，请先配置 API Key`,
-        '打开设置'
+        '打开设置',
       );
 
       if (action === '打开设置') {
@@ -266,7 +286,6 @@ async function translateSidebar(
 
     // Update panel with result
     panel.updateResult(result, text);
-
   } catch (error) {
     const message = error instanceof Error ? error.message : '翻译失败';
     vscode.window.showErrorMessage(message);
@@ -333,7 +352,11 @@ async function translateAndReplace(providerManager: ProviderManager): Promise<vo
     async () => {
       try {
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        const targetLang = getTargetLang(text, config.get<Language>('defaultTargetLang', 'auto'), 'zh');
+        const targetLang = getTargetLang(
+          text,
+          config.get<Language>('defaultTargetLang', 'auto'),
+          'zh',
+        );
 
         const result = await providerManager.translateWithDefault(text, {
           sourceLang: 'auto',
@@ -346,11 +369,10 @@ async function translateAndReplace(providerManager: ProviderManager): Promise<vo
         });
 
         vscode.window.showInformationMessage('翻译并替换成功');
-
       } catch (error) {
         const message = error instanceof Error ? error.message : '翻译失败';
         vscode.window.showErrorMessage(message);
       }
-    }
+    },
   );
 }

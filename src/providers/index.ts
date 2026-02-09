@@ -3,18 +3,24 @@ import { DeepSeekProvider } from './deepseek';
 import { QwenProvider } from './qwen';
 import { KimiProvider } from './kimi';
 import { GlmProvider } from './glm';
-import { LLMProvider, ProviderId, ProviderConfig, TranslateOptions, TranslationResult } from '../types';
+import {
+  LLMProvider,
+  ProviderId,
+  ProviderConfig,
+  TranslateOptions,
+  TranslationResult,
+} from '../types';
 import { getPromptManager } from '../services/promptManager';
 
 export class ProviderManager {
   private providers: Map<ProviderId, LLMProvider> = new Map();
   private context: vscode.ExtensionContext;
-  
+
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this.initializeProviders();
   }
-  
+
   private initializeProviders(): void {
     const config = vscode.workspace.getConfiguration('llmTranslation');
 
@@ -58,59 +64,59 @@ export class ProviderManager {
     };
     this.providers.set('glm', new GlmProvider(glmConfig));
   }
-  
+
   getProvider(id: ProviderId): LLMProvider | undefined {
     return this.providers.get(id);
   }
-  
+
   getDefaultProvider(): LLMProvider {
     const config = vscode.workspace.getConfiguration('llmTranslation');
     const defaultProviderId = config.get<ProviderId>('defaultProvider', 'deepseek');
-    
+
     const provider = this.providers.get(defaultProviderId);
     if (!provider) {
       throw new Error(`未找到 Provider: ${defaultProviderId}`);
     }
-    
+
     return provider;
   }
-  
+
   async translateWithDefault(
     text: string,
-    options: Omit<TranslateOptions, 'text'>
+    options: Omit<TranslateOptions, 'text'>,
   ): Promise<TranslationResult> {
     const provider = this.getDefaultProvider();
-    
+
     if (!provider.validateConfig()) {
       const action = await vscode.window.showErrorMessage(
         `${provider.name} API Key 未配置，请先配置 API Key`,
-        '打开设置'
+        '打开设置',
       );
-      
+
       if (action === '打开设置') {
         vscode.commands.executeCommand('llm-translation.openSettings');
       }
-      
+
       throw new Error('API Key 未配置');
     }
-    
+
     // Get the default prompt template ID
     const promptManager = getPromptManager();
     const defaultTemplateId = promptManager.getDefaultTemplateId();
     console.log('[LLM Translation] Using prompt template:', defaultTemplateId);
-    
-    return provider.translate(text, { 
-      ...options, 
+
+    return provider.translate(text, {
+      ...options,
       text,
-      promptTemplate: defaultTemplateId
+      promptTemplate: defaultTemplateId,
     });
   }
-  
+
   reloadProviders(): void {
     this.providers.clear();
     this.initializeProviders();
   }
-  
+
   getAvailableProviders(): { id: ProviderId; name: string; configured: boolean }[] {
     return Array.from(this.providers.entries()).map(([id, provider]) => ({
       id,

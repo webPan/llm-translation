@@ -46,7 +46,10 @@ export class SimplePanelController extends BasePanelController {
 </html>`;
   }
 
-  protected getMessageHandlers(): Record<string, (message: BridgeMessage) => unknown | Promise<unknown>> {
+  protected getMessageHandlers(): Record<
+    string,
+    (message: BridgeMessage) => unknown | Promise<unknown>
+  > {
     return {
       'panel.focus': () => {
         this.focus();
@@ -151,7 +154,7 @@ export class SimplePanelManager extends BasePanelManager<SimplePanelController> 
   createOrShow(
     extensionUri: vscode.Uri,
     extensionContext: vscode.ExtensionContext,
-    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside
+    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside,
   ): SimplePanelController {
     if (this.currentPanel) {
       this.currentPanel.showInColumn(viewColumn, true);
@@ -169,7 +172,7 @@ export class SimplePanelManager extends BasePanelManager<SimplePanelController> 
           vscode.Uri.joinPath(extensionUri, 'out'),
           vscode.Uri.joinPath(extensionUri, 'node_modules'),
         ],
-      }
+      },
     );
 
     const ctrl = new SimplePanelController(panel, extensionUri, extensionContext);
@@ -182,7 +185,7 @@ export class SimplePanelManager extends BasePanelManager<SimplePanelController> 
     extensionContext: vscode.ExtensionContext,
     result: TranslationResult,
     callbacks: SimplePanelCallbacks = {},
-    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside
+    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside,
   ): SimplePanelController {
     const panel = this.createOrShow(extensionUri, extensionContext, viewColumn);
     panel.showResult(result, callbacks);

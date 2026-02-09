@@ -5,14 +5,14 @@ import { SettingsPanelManager } from '../webview/controllers/SettingsPanelContro
 export function registerConfigCommands(
   context: vscode.ExtensionContext,
   providerManager: ProviderManager,
-  settingsPanelManager: SettingsPanelManager
+  settingsPanelManager: SettingsPanelManager,
 ): vscode.Disposable[] {
   const disposables: vscode.Disposable[] = [];
 
   disposables.push(
     vscode.commands.registerCommand('llm-translation.openSettings', () => {
       settingsPanelManager.createOrShow(context.extensionUri, context);
-    })
+    }),
   );
 
   disposables.push(
@@ -23,13 +23,13 @@ export function registerConfigCommands(
 
       await config.update('displayMode', newMode, true);
       vscode.window.showInformationMessage(`已切换到${newMode === 'simple' ? '简版' : '正常'}模式`);
-    })
+    }),
   );
 
   disposables.push(
     vscode.commands.registerCommand('llm-translation.switchProvider', async () => {
       const providers = providerManager.getAvailableProviders();
-      const items = providers.map(p => ({
+      const items = providers.map((p) => ({
         label: p.name,
         description: p.configured ? '已配置' : '未配置',
         detail: p.id,
@@ -67,7 +67,7 @@ export function registerConfigCommands(
         await config.update('defaultProvider', selected.detail, true);
         vscode.window.showInformationMessage(`已切换到 ${selected.label}`);
       }
-    })
+    }),
   );
 
   // Command to quickly set API key
@@ -81,8 +81,8 @@ export function registerConfigCommands(
       ];
 
       const selected = await vscode.window.showQuickPick(
-        providers.map(p => ({ label: p.name, detail: p.id })),
-        { placeHolder: '选择要配置 API Key 的提供商' }
+        providers.map((p) => ({ label: p.name, detail: p.id })),
+        { placeHolder: '选择要配置 API Key 的提供商' },
       );
 
       if (!selected) return;
@@ -101,11 +101,7 @@ export function registerConfigCommands(
 
       if (apiKey) {
         const config = vscode.workspace.getConfiguration('llmTranslation');
-        await config.update(
-          `providers.${selected.detail}.apiKey`,
-          apiKey,
-          true
-        );
+        await config.update(`providers.${selected.detail}.apiKey`, apiKey, true);
         vscode.window.showInformationMessage(`${selected.label} API Key 已保存`);
 
         // Reload providers to apply new config
@@ -114,7 +110,7 @@ export function registerConfigCommands(
         // Update settings panel if open
         settingsPanelManager.updateProviders();
       }
-    })
+    }),
   );
 
   return disposables;
